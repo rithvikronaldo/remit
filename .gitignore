@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Env / secrets
+.env
+
+# Decision cache (Phase 2) — regenerated on demand
+.cache/
+
+# Generated eval run reports
+eval/last_*.json
+eval/last_*.html
+
+# Generated fixtures (one sample is committed under fixtures/sample/)
+/fixtures/*
+!/fixtures/.gitkeep
+!/fixtures/sample/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Node (dashboard)
+web/node_modules/
+web/dist/

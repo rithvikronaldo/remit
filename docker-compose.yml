@@ -1,0 +1,47 @@
+# Brings up Postgres with pgvector and (later phases) the Remit API.
+# Phase 0 does not require this stack; the generator runs standalone.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: remit
+      POSTGRES_PASSWORD: remit
+      POSTGRES_DB: remit
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U remit -d remit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      # The demo runs on synthetic fixtures with local embeddings; DB optional.
+      DATABASE_URL: postgresql://remit:remit@db:5432/remit
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  web:
+    image: node:20-slim
+    working_dir: /web
+    volumes:
+      - ./web:/web
+    environment:
+      REMIT_API: http://api:8000
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

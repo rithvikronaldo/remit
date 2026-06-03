@@ -1,0 +1,27 @@
+# --- Core (Phase 0+) ---
+pydantic>=2.6
+python-dateutil>=2.9
+
+# --- PDF EOB rendering (Phase 0 --pdf) + text-layer extraction (Phase 4) ---
+reportlab>=4.1
+pypdf>=4.2
+
+# --- Local embeddings (Phase 1) — free, runs offline, no per-query API cost ---
+fastembed>=0.3            # ONNX (no torch); BAAI/bge-small-en-v1.5, 384-dim
+
+# --- Service + persistence (Phase 1+) ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlmodel>=0.0.16
+psycopg[binary]>=3.1
+pgvector>=0.2.5
+
+# --- LLM orchestration (Phase 2+) ---
+langchain>=0.2
+langchain-anthropic>=0.1
+langchain-core>=0.2
+langsmith>=0.1
+
+# --- Dev ---
+pytest>=8.1
+ruff>=0.4

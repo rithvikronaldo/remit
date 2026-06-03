@@ -1,0 +1,478 @@
+{
+  "seed": 1,
+  "payer": "CIGNA DENTAL",
+  "paid_date": "2026-06-01",
+  "remittances": [
+    {
+      "trn": "EFT20260601001",
+      "eft_amount": "1130.97",
+      "plb_amount": "0.00",
+      "claim_ids": [
+        "CLAIM001",
+        "CLAIM002",
+        "CLAIM003",
+        "CLAIM004",
+        "CLAIM005",
+        "CLAIM006"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "CLAIM001",
+      "patient_ref": "MEMBER001",
+      "date_of_service": "2026-05-09",
+      "clp_status_code": "1",
+      "role": "normal",
+      "billed_total": "111.00",
+      "paid_total": "50.50",
+      "lines": [
+        {
+          "cdt_code": "D0150",
+          "billed": "111.00",
+          "allowed": "72.15",
+          "paid": "50.50",
+          "patient_responsibility": "21.65",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "38.85",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "21.65",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "50.50",
+            "contractual_writeoff": "38.85",
+            "patient_responsibility": "21.65",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLAIM002",
+      "patient_ref": "MEMBER002",
+      "date_of_service": "2026-05-01",
+      "clp_status_code": "1",
+      "role": "normal",
+      "billed_total": "990.00",
+      "paid_total": "618.50",
+      "lines": [
+        {
+          "cdt_code": "D0274",
+          "billed": "61.00",
+          "allowed": "39.65",
+          "paid": "39.65",
+          "patient_responsibility": "0.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "21.35",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "39.65",
+            "contractual_writeoff": "21.35",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        },
+        {
+          "cdt_code": "D2740",
+          "billed": "929.00",
+          "allowed": "603.85",
+          "paid": "578.85",
+          "patient_responsibility": "25.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "325.15",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "1",
+              "amount": "25.00",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "578.85",
+            "contractual_writeoff": "325.15",
+            "patient_responsibility": "25.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLAIM003",
+      "patient_ref": "MEMBER003",
+      "date_of_service": "2026-04-28",
+      "clp_status_code": "1",
+      "role": "normal",
+      "billed_total": "364.00",
+      "paid_total": "189.28",
+      "lines": [
+        {
+          "cdt_code": "D4341",
+          "billed": "297.00",
+          "allowed": "193.05",
+          "paid": "154.44",
+          "patient_responsibility": "38.61",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "103.95",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "38.61",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "154.44",
+            "contractual_writeoff": "103.95",
+            "patient_responsibility": "38.61",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        },
+        {
+          "cdt_code": "D0120",
+          "billed": "67.00",
+          "allowed": "43.55",
+          "paid": "34.84",
+          "patient_responsibility": "8.71",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "23.45",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "8.71",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "34.84",
+            "contractual_writeoff": "23.45",
+            "patient_responsibility": "8.71",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLAIM004",
+      "patient_ref": "MEMBER004",
+      "date_of_service": "2026-05-11",
+      "clp_status_code": "1",
+      "role": "normal",
+      "billed_total": "465.00",
+      "paid_total": "146.00",
+      "lines": [
+        {
+          "cdt_code": "D4341",
+          "billed": "320.00",
+          "allowed": "208.00",
+          "paid": "110.60",
+          "patient_responsibility": "97.40",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "112.00",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "1",
+              "amount": "50.00",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "47.40",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "110.60",
+            "contractual_writeoff": "112.00",
+            "patient_responsibility": "97.40",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        },
+        {
+          "cdt_code": "D0150",
+          "billed": "100.00",
+          "allowed": "65.00",
+          "paid": "12.00",
+          "patient_responsibility": "53.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "35.00",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "1",
+              "amount": "50.00",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "3.00",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "12.00",
+            "contractual_writeoff": "35.00",
+            "patient_responsibility": "53.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        },
+        {
+          "cdt_code": "D0120",
+          "billed": "45.00",
+          "allowed": "29.25",
+          "paid": "23.40",
+          "patient_responsibility": "5.85",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "15.75",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "5.85",
+              "expected_action": "bill_patient",
+              "billable_to_patient": true
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "23.40",
+            "contractual_writeoff": "15.75",
+            "patient_responsibility": "5.85",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "settled"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLAIM005",
+      "patient_ref": "MEMBER005",
+      "date_of_service": "2026-05-25",
+      "clp_status_code": "4",
+      "role": "denial",
+      "billed_total": "390.00",
+      "paid_total": "0.00",
+      "lines": [
+        {
+          "cdt_code": "D2391",
+          "billed": "247.00",
+          "allowed": "0.00",
+          "paid": "0.00",
+          "patient_responsibility": "0.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "16",
+              "amount": "247.00",
+              "expected_action": "appeal",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "0.00",
+            "contractual_writeoff": "0.00",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "appealed"
+        },
+        {
+          "cdt_code": "D0274",
+          "billed": "82.00",
+          "allowed": "0.00",
+          "paid": "0.00",
+          "patient_responsibility": "0.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "16",
+              "amount": "82.00",
+              "expected_action": "appeal",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "0.00",
+            "contractual_writeoff": "0.00",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "appealed"
+        },
+        {
+          "cdt_code": "D0120",
+          "billed": "61.00",
+          "allowed": "0.00",
+          "paid": "0.00",
+          "patient_responsibility": "0.00",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "197",
+              "amount": "61.00",
+              "expected_action": "appeal",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "0.00",
+            "contractual_writeoff": "0.00",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "0.00"
+          },
+          "expected_status": "appealed"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLAIM006",
+      "patient_ref": "MEMBER006",
+      "date_of_service": "2026-04-24",
+      "clp_status_code": "2",
+      "role": "cob",
+      "billed_total": "321.00",
+      "paid_total": "126.69",
+      "lines": [
+        {
+          "cdt_code": "D2950",
+          "billed": "279.00",
+          "allowed": "181.35",
+          "paid": "125.08",
+          "patient_responsibility": "56.27",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "97.65",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "1",
+              "amount": "25.00",
+              "expected_action": "bill_secondary",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "31.27",
+              "expected_action": "bill_secondary",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "125.08",
+            "contractual_writeoff": "97.65",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "56.27"
+          },
+          "expected_status": "settled"
+        },
+        {
+          "cdt_code": "D1206",
+          "billed": "42.00",
+          "allowed": "27.30",
+          "paid": "1.61",
+          "patient_responsibility": "25.69",
+          "adjustments": [
+            {
+              "group": "CO",
+              "reason": "45",
+              "amount": "14.70",
+              "expected_action": "contractual_writeoff",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "1",
+              "amount": "25.00",
+              "expected_action": "bill_secondary",
+              "billable_to_patient": false
+            },
+            {
+              "group": "PR",
+              "reason": "2",
+              "amount": "0.69",
+              "expected_action": "bill_secondary",
+              "billable_to_patient": false
+            }
+          ],
+          "expected_settlement": {
+            "insurance_paid": "1.61",
+            "contractual_writeoff": "14.70",
+            "patient_responsibility": "0.00",
+            "secondary_responsibility": "25.69"
+          },
+          "expected_status": "settled"
+        }
+      ]
+    }
+  ]
+}
