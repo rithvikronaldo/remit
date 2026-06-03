@@ -1,0 +1,20 @@
+# Fly.io deploy for the Remit API (scale-to-zero → ~$0 idle).
+#   fly launch --no-deploy   # once, to create the app
+#   fly secrets set ANTHROPIC_API_KEY=...   # optional; demo runs without it
+#   fly deploy
+app = "remit"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true      # scale to zero when idle
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
