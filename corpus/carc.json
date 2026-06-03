@@ -1,0 +1,155 @@
+[
+  {
+    "id": "carc-45",
+    "chunk_type": "carc",
+    "code": "45",
+    "group_applicable": ["CO", "PI"],
+    "payer": null,
+    "content": "CARC 45 — Charge exceeds fee schedule / maximum allowable or contracted fee arrangement. Under group code CO (Contractual Obligation) the provider absorbs the difference (billed minus allowed) as a contractual write-off and must NOT balance-bill the patient. This is the routine fee-schedule reduction on most paid lines.",
+    "metadata": {"default_action": "contractual_writeoff", "billable_to_patient": false, "is_denial": false}
+  },
+  {
+    "id": "carc-97",
+    "chunk_type": "carc",
+    "code": "97",
+    "group_applicable": ["CO"],
+    "payer": null,
+    "content": "CARC 97 — The benefit for this service is included in the payment/allowance for another service already adjudicated (bundling). Under CO the bundled amount is a contractual write-off; the patient is not billed. Common on procedures the payer considers part of a global or inclusive procedure.",
+    "metadata": {"default_action": "contractual_writeoff", "billable_to_patient": false, "is_denial": false}
+  },
+  {
+    "id": "carc-1",
+    "chunk_type": "carc",
+    "code": "1",
+    "group_applicable": ["PR"],
+    "payer": null,
+    "content": "CARC 1 — Deductible amount. Under group code PR (Patient Responsibility) this amount is owed by the patient as their plan deductible. Bill the patient.",
+    "metadata": {"default_action": "bill_patient", "billable_to_patient": true, "is_denial": false}
+  },
+  {
+    "id": "carc-2",
+    "chunk_type": "carc",
+    "code": "2",
+    "group_applicable": ["PR"],
+    "payer": null,
+    "content": "CARC 2 — Coinsurance amount. Under PR this is the patient's coinsurance share of the allowed amount. Bill the patient.",
+    "metadata": {"default_action": "bill_patient", "billable_to_patient": true, "is_denial": false}
+  },
+  {
+    "id": "carc-3",
+    "chunk_type": "carc",
+    "code": "3",
+    "group_applicable": ["PR"],
+    "payer": null,
+    "content": "CARC 3 — Co-payment amount. Under PR this fixed copay is owed by the patient. Bill the patient.",
+    "metadata": {"default_action": "bill_patient", "billable_to_patient": true, "is_denial": false}
+  },
+  {
+    "id": "carc-16",
+    "chunk_type": "carc",
+    "code": "16",
+    "group_applicable": ["CO", "OA"],
+    "payer": null,
+    "content": "CARC 16 — Claim/service lacks information or has submission/billing error(s). Almost always accompanied by a RARC remark specifying exactly what is missing. The correct action is usually to correct and resubmit (treated as appeal/rework), not to write off or bill the patient. Requires the RARC to know what to fix.",
+    "metadata": {"default_action": "appeal", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-18",
+    "chunk_type": "carc",
+    "code": "18",
+    "group_applicable": ["OA"],
+    "payer": null,
+    "content": "CARC 18 — Exact duplicate claim/service. The original already adjudicated; this duplicate is not separately payable. No patient billing. Review against the original adjudication; no new financial action.",
+    "metadata": {"default_action": "review", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-22",
+    "chunk_type": "carc",
+    "code": "22",
+    "group_applicable": ["OA", "PR"],
+    "payer": null,
+    "content": "CARC 22 — This care may be covered by another payer per coordination of benefits (COB). The balance should be routed to the secondary payer rather than written off or billed to the patient. Bill secondary.",
+    "metadata": {"default_action": "bill_secondary", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-23",
+    "chunk_type": "carc",
+    "code": "23",
+    "group_applicable": ["OA"],
+    "payer": null,
+    "content": "CARC 23 — The impact of prior payer(s) adjudication including payments and/or adjustments. Used in COB and when a prior payer's action adjusts this payer's calculation. Often appears as a positive or negative OA amount; verify the net against the EFT. Review rather than auto-settle.",
+    "metadata": {"default_action": "review", "billable_to_patient": false, "is_denial": false}
+  },
+  {
+    "id": "carc-29",
+    "chunk_type": "carc",
+    "code": "29",
+    "group_applicable": ["CO"],
+    "payer": null,
+    "content": "CARC 29 — The time limit for filing has expired (timely-filing denial). When the practice missed the payer's filing window and has no proof of timely submission, the amount is not recoverable and is written off (the practice absorbs it under CO); it cannot be billed to the patient. If proof of timely filing exists, appeal instead.",
+    "metadata": {"default_action": "contractual_writeoff", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-50",
+    "chunk_type": "carc",
+    "code": "50",
+    "group_applicable": ["CO", "PR"],
+    "payer": null,
+    "content": "CARC 50 — These are non-covered services because this is not deemed a medical/dental necessity by the payer. Typically appealed with supporting clinical documentation; if the appeal is unavailable or unsuccessful and a valid signed waiver/ABN exists, it may shift to the patient. Default action is appeal.",
+    "metadata": {"default_action": "appeal", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-96",
+    "chunk_type": "carc",
+    "code": "96",
+    "group_applicable": ["CO", "PR"],
+    "payer": null,
+    "content": "CARC 96 — Non-covered charge(s). A RARC usually specifies why. Under CO the provider writes it off; under PR (with a valid patient agreement/waiver) it may be billed to the patient. The group code disambiguates: CO is not billable to the patient, PR is.",
+    "metadata": {"default_action": "review", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-109",
+    "chunk_type": "carc",
+    "code": "109",
+    "group_applicable": ["CO", "OA"],
+    "payer": null,
+    "content": "CARC 109 — Claim/service not covered by this payer/contractor; the patient must submit to (or the practice must bill) the correct payer. Route to the appropriate/secondary payer; do not bill the patient or write off until the correct payer is exhausted.",
+    "metadata": {"default_action": "bill_secondary", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-119",
+    "chunk_type": "carc",
+    "code": "119",
+    "group_applicable": ["PR"],
+    "payer": null,
+    "content": "CARC 119 — Benefit maximum for this time period or occurrence has been reached (e.g. annual maximum exhausted). The remaining balance becomes the patient's responsibility under PR. Bill the patient.",
+    "metadata": {"default_action": "bill_patient", "billable_to_patient": true, "is_denial": false}
+  },
+  {
+    "id": "carc-197",
+    "chunk_type": "carc",
+    "code": "197",
+    "group_applicable": ["CO", "PI"],
+    "payer": null,
+    "content": "CARC 197 — Precertification/authorization/notification/pre-treatment-estimate absent. The service required prior authorization that was not obtained. If a valid authorization is on file (e.g. obtained but not attached), appeal with the auth. If no authorization was ever obtained, it is typically a provider write-off and is not billable to the patient. Default action is appeal.",
+    "metadata": {"default_action": "appeal", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-204",
+    "chunk_type": "carc",
+    "code": "204",
+    "group_applicable": ["PR", "CO"],
+    "payer": null,
+    "content": "CARC 204 — This service/equipment/drug is not covered under the patient's current benefit plan. Under PR (with a valid patient financial agreement) bill the patient; under CO write off. Group code disambiguates billability.",
+    "metadata": {"default_action": "review", "billable_to_patient": false, "is_denial": true}
+  },
+  {
+    "id": "carc-252",
+    "chunk_type": "carc",
+    "code": "252",
+    "group_applicable": ["CO"],
+    "payer": null,
+    "content": "CARC 252 — An attachment/other documentation is required to adjudicate this claim/service. The claim cannot pay until the documentation (e.g. x-rays, narrative, perio chart) is supplied. Correct and resubmit with the attachment (treated as appeal/rework). Not patient-billable.",
+    "metadata": {"default_action": "appeal", "billable_to_patient": false, "is_denial": true}
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "group-CO",
+    "chunk_type": "group_code",
+    "code": "CO",
+    "group_applicable": ["CO"],
+    "payer": null,
+    "content": "Group code CO — Contractual Obligation. The adjustment results from the provider's contract with the payer (e.g. fee-schedule reductions, bundling). The provider absorbs the amount as a write-off and must NEVER balance-bill the patient for a CO adjustment. This is a hard rule: any decision that bills a patient for a CO amount is invalid.",
+    "metadata": {"billable_to_patient": false}
+  },
+  {
+    "id": "group-PR",
+    "chunk_type": "group_code",
+    "code": "PR",
+    "group_applicable": ["PR"],
+    "payer": null,
+    "content": "Group code PR — Patient Responsibility. The amount is owed by the patient: deductible (CARC 1), coinsurance (CARC 2), copay (CARC 3), or amounts past a benefit maximum (CARC 119). Bill the patient. If the claim is a secondary/COB situation the PR balance may instead route to a secondary payer.",
+    "metadata": {"billable_to_patient": true}
+  },
+  {
+    "id": "group-OA",
+    "chunk_type": "group_code",
+    "code": "OA",
+    "group_applicable": ["OA"],
+    "payer": null,
+    "content": "Group code OA — Other Adjustment. Used when neither CO nor PR applies — commonly coordination-of-benefits impacts (CARC 22, 23), corrections, or adjustments that net against the EFT. OA amounts are not automatically patient-billable; they usually require review or routing to another payer.",
+    "metadata": {"billable_to_patient": false}
+  },
+  {
+    "id": "group-PI",
+    "chunk_type": "group_code",
+    "code": "PI",
+    "group_applicable": ["PI"],
+    "payer": null,
+    "content": "Group code PI — Payer Initiated Reduction. The payer's own initiative (not a contractual term and not patient responsibility) reduces the payment. Like CO it is not billable to the patient; it reduces the allowed amount and is generally absorbed or appealed depending on the reason code.",
+    "metadata": {"billable_to_patient": false}
+  }
+]

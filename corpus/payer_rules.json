@@ -1,0 +1,38 @@
+[
+  {
+    "id": "payer-delta-timely-filing",
+    "chunk_type": "payer_rule",
+    "code": null,
+    "group_applicable": null,
+    "payer": "DELTA DENTAL OF EXAMPLE",
+    "content": "Delta Dental of Example — Timely filing: claims must be received within 90 days of the date of service. A CARC 29 timely-filing denial from Delta is appealable only with proof of timely submission (clearinghouse acknowledgement or certified mail). Absent proof, the balance is a contractual write-off and is not billable to the patient.",
+    "metadata": {"topic": "timely_filing", "appeal_window_days": 90}
+  },
+  {
+    "id": "payer-delta-precert-crowns",
+    "chunk_type": "payer_rule",
+    "code": null,
+    "group_applicable": null,
+    "payer": "DELTA DENTAL OF EXAMPLE",
+    "content": "Delta Dental of Example — Prior authorization: major restorative procedures (crowns D2740, core buildups D2950) require pre-treatment authorization. A CARC 197 denial for these codes should be appealed if an authorization number is on file; if no authorization was obtained, Delta treats it as a provider write-off (CO), not patient responsibility.",
+    "metadata": {"topic": "prior_auth", "cdt_codes": ["D2740", "D2950"]}
+  },
+  {
+    "id": "payer-cigna-frequency-prophy",
+    "chunk_type": "payer_rule",
+    "code": null,
+    "group_applicable": null,
+    "payer": "CIGNA DENTAL",
+    "content": "Cigna Dental — Frequency limits: routine prophylaxis (D1110) and periodic evaluations (D0120) are covered twice per calendar year. A frequency denial (often CARC 119 with RARC N362) for an over-limit cleaning shifts the balance to the patient under PR when a signed financial agreement is on file.",
+    "metadata": {"topic": "frequency", "cdt_codes": ["D1110", "D0120"]}
+  },
+  {
+    "id": "payer-cigna-cob",
+    "chunk_type": "payer_rule",
+    "code": null,
+    "group_applicable": null,
+    "payer": "CIGNA DENTAL",
+    "content": "Cigna Dental — Coordination of benefits: when Cigna is the secondary payer, the primary payer's EOB (or RARC MA04 resolution) is required before Cigna will adjudicate. When Cigna is primary and indicates COB (CARC 22), route the remaining balance to the secondary payer rather than billing the patient.",
+    "metadata": {"topic": "cob"}
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "playbook-197-precert",
+    "chunk_type": "playbook",
+    "code": "197",
+    "group_applicable": ["CO", "PI"],
+    "payer": null,
+    "content": "Denial playbook — CARC 197 (precertification/authorization absent): 1) Check whether a valid authorization is on file for the date of service. 2) If yes, appeal with the authorization attached. 3) If no auth was ever obtained, the amount is a provider write-off under CO — do not balance-bill the patient. Default recommended action: appeal.",
+    "metadata": {"codes": ["197"], "recommended_action": "appeal"}
+  },
+  {
+    "id": "playbook-29-timely",
+    "chunk_type": "playbook",
+    "code": "29",
+    "group_applicable": ["CO"],
+    "payer": null,
+    "content": "Denial playbook — CARC 29 (timely filing expired): 1) Look for proof of timely submission (clearinghouse report, certified mail). 2) If proof exists, appeal within the payer's reconsideration window. 3) If no proof, write off — the practice absorbs it; never bill the patient. Default recommended action: contractual_writeoff.",
+    "metadata": {"codes": ["29"], "recommended_action": "contractual_writeoff"}
+  },
+  {
+    "id": "playbook-50-medical-necessity",
+    "chunk_type": "playbook",
+    "code": "50",
+    "group_applicable": ["CO", "PR"],
+    "payer": null,
+    "content": "Denial playbook — CARC 50 (not medically/dentally necessary): 1) Appeal with clinical documentation (narrative, radiographs, perio charting) citing the relevant policy/LCD (often RARC N115). 2) Only shift to the patient if a valid signed waiver/financial agreement predates the service. Default recommended action: appeal.",
+    "metadata": {"codes": ["50"], "recommended_action": "appeal"}
+  },
+  {
+    "id": "playbook-16-252-documentation",
+    "chunk_type": "playbook",
+    "code": "16",
+    "group_applicable": ["CO", "OA"],
+    "payer": null,
+    "content": "Denial playbook — CARC 16 / 252 (missing information or documentation required): 1) Read the paired RARC (e.g. M127 missing records) to learn exactly what is needed. 2) Supply the documentation and resubmit/appeal. These are correctable rework denials, not write-offs or patient bills. Default recommended action: appeal.",
+    "metadata": {"codes": ["16", "252"], "recommended_action": "appeal"}
+  },
+  {
+    "id": "playbook-22-109-cob",
+    "chunk_type": "playbook",
+    "code": "22",
+    "group_applicable": ["OA", "PR", "CO"],
+    "payer": null,
+    "content": "Denial playbook — CARC 22 / 109 (covered by another payer / not covered by this payer / COB): 1) Identify the correct or secondary payer. 2) Obtain the primary EOB if needed (RARC MA04). 3) Bill the secondary payer; do not bill the patient or write off until the correct payer is exhausted. Default recommended action: bill_secondary.",
+    "metadata": {"codes": ["22", "109"], "recommended_action": "bill_secondary"}
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "rarc-N130",
+    "chunk_type": "rarc",
+    "code": "N130",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC N130 — Consult plan benefit documents/guidelines for information about restrictions for this service. Supplements a CARC by pointing to plan-specific coverage limits; does not by itself change the financial action.",
+    "metadata": {"supplements": true}
+  },
+  {
+    "id": "rarc-N362",
+    "chunk_type": "rarc",
+    "code": "N362",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC N362 — The number of days or units of service exceeds the acceptable maximum. Supplements a frequency/maximum denial (e.g. CARC 119 or 96); the excess is typically the patient's or written off depending on the paired group code.",
+    "metadata": {"supplements": true}
+  },
+  {
+    "id": "rarc-M127",
+    "chunk_type": "rarc",
+    "code": "M127",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC M127 — Missing patient medical/dental record for this service. Paired with CARC 16 or 252; resolve by submitting the requested documentation and resubmitting/appealing.",
+    "metadata": {"supplements": true}
+  },
+  {
+    "id": "rarc-N522",
+    "chunk_type": "rarc",
+    "code": "N522",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC N522 — Duplicate of a claim processed (or to be processed) as a crossover/COB claim. Paired with CARC 18; confirm against the original; no separate payment or patient billing.",
+    "metadata": {"supplements": true}
+  },
+  {
+    "id": "rarc-MA04",
+    "chunk_type": "rarc",
+    "code": "MA04",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC MA04 — Secondary payment cannot be considered without the identity of, or payment information from, the primary payer. Paired with COB CARCs (22, 23); obtain the primary EOB before billing the secondary.",
+    "metadata": {"supplements": true}
+  },
+  {
+    "id": "rarc-N115",
+    "chunk_type": "rarc",
+    "code": "N115",
+    "group_applicable": null,
+    "payer": null,
+    "content": "RARC N115 — This decision was based on a Local Coverage Determination (LCD) or plan policy. Supplements a medical-necessity denial (CARC 50); appeals should cite the relevant policy and clinical documentation.",
+    "metadata": {"supplements": true}
+  }
+]
