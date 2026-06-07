@@ -196,15 +196,22 @@ It runs on **synthetic data** (ships with its own generator — no PHI) and a **
 
 ## Deploy
 
-The API is a single container; the dashboard is a static Vite build. Cheapest path (scale-to-zero, ~$0 idle):
+**Live demo → https://rithvikronaldo-remit.hf.space** (free Hugging Face Space; first hit after idle cold-starts in ~30–60s, then it's fast.)
+
+The whole app ships as a **single container**: FastAPI serves both the API and the built Vite dashboard (gated by `REMIT_SERVE_SPA=1`). The README's YAML frontmatter tells Hugging Face to build the `Dockerfile` and route to port 8000, so pushing the repo to the Space's git remote *is* the deploy:
 
 ```bash
-fly launch --no-deploy            # uses the committed fly.toml
-fly secrets set ANTHROPIC_API_KEY=...   # optional — the demo runs without it
-fly deploy
+git remote add hf https://huggingface.co/spaces/<user>/remit
+git push hf main                  # HF builds the Dockerfile and runs it ($0, no card)
 ```
 
-`fly.toml` sets `auto_stop_machines` / `min_machines_running = 0` so it sleeps when idle. The demo runs on synthetic fixtures with local embeddings, so no Postgres or API key is required to show it working; a production deployment would point `DATABASE_URL` at managed pgvector (Neon/Supabase) and load the corpus into it.
+Any Docker host works identically — e.g. Fly.io scale-to-zero (~$0 idle) via the committed `fly.toml`:
+
+```bash
+fly launch --no-deploy && fly deploy
+```
+
+The demo runs on synthetic fixtures with local embeddings, so no Postgres or API key is required to show it working; a production deployment would point `DATABASE_URL` at managed pgvector (Neon/Supabase) and load the corpus into it.
 
 ---
 
