@@ -98,7 +98,7 @@ class AppState:
             self.remittances[pr.remittance.trn] = {
                 "remit": pr.remittance, "source": "835",
                 "content_hash": pr.content_hash, "processed": False, "run": None,
-                "parse_exceptions": pr.exceptions,
+                "parse_exceptions": pr.exceptions, "raw": edi.read_bytes(),
             }
         for trn in list(self.remittances):
             self.process(trn)
@@ -112,7 +112,8 @@ class AppState:
         ingest_results(self.queue, match_result=match_result, settlement=settlement, recon=recon)
         for e in entry.get("parse_exceptions", []):
             self.queue.add(e["reason"], evidence={"detail": e.get("detail")})
-        committed = recon.tied and not recon.held and not entry.get("parse_exceptions")
+        committed = (recon.tied and not recon.held and not entry.get("parse_exceptions")
+                     and not match_result.exceptions)  # fail-closed: hold if any line is unmatched
         if committed:
             self.settlement_store.commit(settlement)
         entry.update({"processed": True, "match": match_result, "settlement": settlement,
@@ -233,7 +234,8 @@ async def upload_remittance(file: UploadFile = File(...)):
 
     state().seen.register(h)
     state().remittances[remit.trn] = {"remit": remit, "source": source, "content_hash": h,
-                                      "processed": False, "run": None, "parse_exceptions": pexc}
+                                      "processed": False, "run": None, "parse_exceptions": pexc,
+                                      "raw": data}
     return {"remittance_id": remit.trn, "source": source, "payer": remit.payer,
             "claims": len(remit.claims), "lines": sum(len(c.lines) for c in remit.claims),
             "parse_exceptions": pexc}
@@ -259,6 +261,39 @@ def list_remittances():
                     "processed": e["processed"], "committed": e.get("committed", False),
                     "tied": (e["recon"].tied if e.get("recon") else None)})
     return out
+
+
+@app.get("/claims")
+def list_claims():
+    """The office's open claims — what the Match stage links remittance lines back to."""
+    return [{"claim_id": ln.claim_id, "patient_ref": ln.patient_ref, "cdt_code": ln.cdt_code,
+             "date_of_service": str(ln.date_of_service), "payer": ln.payer,
+             "billed": str(ln.billed), "status": ln.status} for ln in state().repo.open_lines()]
+
+
+@app.post("/claims")
+async def upload_claims(file: UploadFile = File(...)):
+    """Seed the office's open claims (stand-in for the PMS / 837 submission) so remittances can match."""
+    data = await file.read()
+    try:
+        golden = json.loads(data.decode())
+    except Exception:
+        raise HTTPException(415, "claims file must be JSON in golden format: {payer, claims:[...]}")
+    if "claims" not in golden:
+        raise HTTPException(422, "expected a 'claims' array in the file")
+    added = state().repo.extend_from_golden(golden)
+    return {"added": added, "total_open_lines": len(state().repo.open_lines())}
+
+
+@app.get("/remittances/{trn}/source")
+def get_source(trn: str):
+    """Serve the original uploaded document (PDF or raw 835) — document-in, data-out."""
+    from fastapi.responses import Response
+    e = state().remittances.get(trn)
+    if not e or not e.get("raw"):
+        raise HTTPException(404, "no source document stored for this remittance")
+    media = "application/pdf" if e["source"] == "pdf" else "text/plain"
+    return Response(content=e["raw"], media_type=media)
 
 
 @app.get("/remittances/{trn}/pipeline")

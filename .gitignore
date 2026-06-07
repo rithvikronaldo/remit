@@ -31,3 +31,8 @@ eval/last_*.html
 # Node (dashboard)
 web/node_modules/
 web/dist/
+resume/
+docs/MARKET_YOURSELF.md
+docs/QUESTION_BANK.md
+docs/SKILLS_DEFENSE.md
+docs/REMIT_EXPLAINER.html

@@ -105,6 +105,21 @@ class OpenClaimRepository:
     def open_lines(self) -> list[OpenClaimLine]:
         return [ln for lines in self._by_key.values() for ln in lines]
 
+    def extend_from_golden(self, golden: dict) -> int:
+        """Add open claim lines from a golden-format dict to this repo; returns count added."""
+        from datetime import datetime
+        payer = golden.get("payer", "")
+        n = 0
+        for c in golden["claims"]:
+            dos = datetime.fromisoformat(c["date_of_service"]).date()
+            for ln in c["lines"]:
+                self.add(OpenClaimLine(
+                    claim_id=c["claim_id"], payer=payer, patient_ref=c["patient_ref"],
+                    date_of_service=dos, cdt_code=ln["cdt_code"], billed=money(ln["billed"]),
+                ))
+                n += 1
+        return n
+
 
 def match_remittance(remit: Remittance, repo: OpenClaimRepository) -> MatchResult:
     result = MatchResult()
