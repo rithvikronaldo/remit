@@ -108,6 +108,14 @@ class ExceptionQueue:
             raise ValueError(f"unknown decision {decision!r}")
         if chosen not in VALID_ACTIONS:
             raise ValueError(f"invalid action {chosen!r}")
+        # Guardrail parity with the engine: a contractual (CO/PI) amount can never be
+        # balance-billed to the patient — not even via a human override.
+        try:
+            contractual = float(item.evidence.get("contractual_writeoff") or 0)
+        except (TypeError, ValueError):
+            contractual = 0.0
+        if chosen == "bill_patient" and contractual > 0:
+            raise ValueError("cannot balance-bill a contractual adjustment to the patient")
 
         res = Resolution(item_id=item_id, decision=decision, action=chosen, operator=operator)
         item.status = "resolved"

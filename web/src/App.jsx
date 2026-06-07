@@ -464,20 +464,49 @@ function Evidence({ ev }) {
 }
 
 function ReviewPanel({ item, onResolve }) {
+  const isReview = item.recommended_action === "review";              // engine has no confident call
+  const contractual = parseFloat(item.evidence?.contractual_writeoff || 0) > 0;  // CO/PI portion present
   return (
     <div>
-      <div className="prepared">✻ Remit prepared a recommendation — review it, then approve or override.</div>
+      <div className="prepared">
+        {isReview
+          ? "✻ Remit couldn't decide this confidently — it's your call."
+          : "✻ Remit prepared a recommendation — review it, then approve or override."}
+      </div>
       <div className="exc-head">
         <span className={"exc-badge b-" + item.reason}>{REASON_LABEL[item.reason] || item.reason}</span>
         {(item.claim_id || item.cdt_code) && <span className="exc-claim">{item.claim_id} {item.cdt_code}</span>}
       </div>
       <Evidence ev={item.evidence} />
-      <p className="mut" style={{ marginTop: ".6rem" }}>Recommended action: <b>{item.recommended_action}</b></p>
+      <p className="mut" style={{ marginTop: ".6rem" }}>
+        {isReview
+          ? "No confident recommendation — choose how to settle this line:"
+          : <>Recommended action: <b>{item.recommended_action}</b></>}
+      </p>
       <div className="review-actions">
-        <button className="btn-approve" onClick={() => onResolve(item.id, "accept")}>✓ Approve ({item.recommended_action})</button>
-        <button onClick={() => onResolve(item.id, "override", "contractual_writeoff")}>Override → write-off</button>
-        <button onClick={() => onResolve(item.id, "override", "bill_patient")}>Override → bill patient</button>
+        {!isReview && (
+          <button className="btn-approve" onClick={() => onResolve(item.id, "accept")}>
+            ✓ Approve ({item.recommended_action})
+          </button>
+        )}
+        <button className={isReview ? "btn-approve" : ""} onClick={() => onResolve(item.id, "override", "contractual_writeoff")}>
+          {isReview ? "Write off" : "Override → write-off"}
+        </button>
+        {contractual ? (
+          <span className="blocked-note" title="A contractual (CO) adjustment can never be balance-billed to the patient.">
+            🔒 Bill patient — blocked
+          </span>
+        ) : (
+          <button onClick={() => onResolve(item.id, "override", "bill_patient")}>
+            {isReview ? "Bill patient" : "Override → bill patient"}
+          </button>
+        )}
       </div>
+      {contractual && (
+        <p className="ev-note" style={{ marginTop: ".55rem" }}>
+          🔒 Billing the patient is blocked here: this line carries a contractual (CO) adjustment, which can never be balance-billed to the patient — the same hard rule the engine enforces.
+        </p>
+      )}
     </div>
   );
 }

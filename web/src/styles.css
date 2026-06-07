@@ -130,6 +130,7 @@ tbody tr:last-child td { border-bottom: none; }
 .review-actions button:hover { border-color: var(--ink); }
 .btn-approve { background: var(--green) !important; color: #fff; border: none !important; font-weight: 600; }
 .btn-approve:hover { background: #2a8c5f !important; }
+.blocked-note { display: inline-flex; align-items: center; padding: .45rem .85rem; border-radius: 10px; border: 1px dashed var(--line); color: var(--mut); font-size: 13px; background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,.02) 6px, rgba(0,0,0,.02) 12px); cursor: not-allowed; }
 .exc-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .5rem; }
 .exc-badge { font-size: 12px; font-weight: 600; padding: .18rem .6rem; border-radius: 999px; background: #f0ede6; color: var(--muted); }
 .exc-badge.b-low_confidence { background: var(--amber-bg); color: var(--amber); }

@@ -66,6 +66,27 @@ def test_invalid_action_rejected():
         q.resolve(item.id, "override", action="frobnicate")
 
 
+def test_human_cannot_balance_bill_a_contractual_line():
+    """Guardrail parity: a CO/PI (contractual) amount can never be billed to the
+    patient — not even via a human override in the inbox."""
+    q = ExceptionQueue()
+    item = q.add("low_confidence", recommended_action="review",
+                 evidence={"contractual_writeoff": "82.00"})
+    with pytest.raises(ValueError):
+        q.resolve(item.id, "override", action="bill_patient")
+    # write-off is still allowed on the same line
+    res = q.resolve(item.id, "override", action="contractual_writeoff")
+    assert res.action == "contractual_writeoff"
+
+
+def test_bill_patient_allowed_when_no_contractual_portion():
+    q = ExceptionQueue()
+    item = q.add("low_confidence", recommended_action="review",
+                 evidence={"contractual_writeoff": "0.00", "patient_responsibility": "40.00"})
+    res = q.resolve(item.id, "override", action="bill_patient")
+    assert res.action == "bill_patient"
+
+
 def test_resolve_is_idempotent():
     q = ExceptionQueue()
     item = q.add("reconciliation_break", recommended_action="review")
