@@ -19,6 +19,8 @@ Routes:
 
 from __future__ import annotations
 
+import os
+
 import json
 from pathlib import Path
 from typing import Optional
@@ -402,3 +404,17 @@ def run_eval_route():
         raise HTTPException(400, "no golden set loaded")
     from eval.pipeline_eval import run_pipeline_eval
     return run_pipeline_eval(str(FIXTURE))
+
+
+# --- serve the built dashboard (single-container production only) ---
+# MUST be the last thing in this module: the SPA catch-all is registered after every
+# API route, so it can't shadow them. Gated by REMIT_SERVE_SPA so tests/dev are untouched.
+if os.getenv("REMIT_SERVE_SPA") == "1":
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+    _DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
+    app.mount("/assets", StaticFiles(directory=str(_DIST / "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    def _serve_spa(full_path: str):
+        return FileResponse(str(_DIST / "index.html"))

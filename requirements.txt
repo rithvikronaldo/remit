@@ -12,6 +12,7 @@ fastembed>=0.3            # ONNX (no torch); BAAI/bge-small-en-v1.5, 384-dim
 # --- Service + persistence (Phase 1+) ---
 fastapi>=0.110
 uvicorn[standard]>=0.29
+python-multipart>=0.0.9   # file uploads (UploadFile / multipart form data)
 sqlmodel>=0.0.16
 psycopg[binary]>=3.1
 pgvector>=0.2.5

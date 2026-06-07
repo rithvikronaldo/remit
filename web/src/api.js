@@ -1,5 +1,6 @@
-// Thin API client. All calls go through the Vite /api proxy → FastAPI.
-const base = "/api";
+// Thin API client. Dev: calls go through the Vite /api proxy → FastAPI.
+// Prod (single container): VITE_API_BASE="" so calls hit the same origin that serves the app.
+const base = import.meta.env.VITE_API_BASE !== undefined ? import.meta.env.VITE_API_BASE : "/api";
 
 async function get(path) {
   const r = await fetch(base + path);
