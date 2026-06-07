@@ -1,3 +1,13 @@
+---
+title: Remit
+emoji: 🦷
+colorFrom: indigo
+colorTo: yellow
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # Remit
 
 **AI remittance adjudication engine for dental revenue cycle.**
