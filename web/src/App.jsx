@@ -437,21 +437,25 @@ const REASON_LABEL = {
 
 function Evidence({ ev }) {
   if (!ev) return null;
+  const fmt = (v) => (String(v).startsWith("-") ? "-$" + String(v).slice(1) : "$" + v);
   const money = [
     ["Billed", ev.billed], ["Insurance paid", ev.insurance_paid],
     ["Write-off", ev.contractual_writeoff], ["Patient", ev.patient_responsibility],
     ["Secondary", ev.secondary_responsibility], ["Appealed (open)", ev.appealed_open],
+    ["Other adj.", ev.other_adjustments],
   ].filter(([, v]) => v !== undefined && v !== null);
+  const hasOther = ev.other_adjustments !== undefined && parseFloat(ev.other_adjustments) !== 0;
   return (
     <div className="ev">
       {ev.detail && <p className="ev-detail">{ev.detail}</p>}
       {money.length > 0 && (
         <div className="ev-grid">
           {money.map(([k, v]) => (
-            <div key={k} className="ev-item"><span className="ev-k">{k}</span><span className="ev-v">${v}</span></div>
+            <div key={k} className="ev-item"><span className="ev-k">{k}</span><span className="ev-v">{fmt(v)}</span></div>
           ))}
         </div>
       )}
+      {hasOther && <p className="ev-note">"Other adj." is an adjustment the engine couldn't auto-settle (e.g. an overpayment, or a prior-payer/COB impact). It balances the line back to Billed and is exactly why this line is held for a human.</p>}
       {(ev.line_exceptions || []).map((le, idx) => (
         <p key={idx} className="ev-note">⚠ {REASON_LABEL[le.reason] || le.reason}: {le.detail}</p>
       ))}

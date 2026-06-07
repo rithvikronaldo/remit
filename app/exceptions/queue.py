@@ -146,6 +146,8 @@ def ingest_results(queue: ExceptionQueue, *, parse_result=None, match_result=Non
                     "patient_responsibility": str(rec.patient_responsibility),
                     "secondary_responsibility": str(rec.secondary_responsibility),
                     "appealed_open": str(rec.appealed_open),
+                    "other_adjustments": str(rec.billed - rec.insurance_paid - rec.contractual_writeoff
+                                             - rec.patient_responsibility - rec.secondary_responsibility - rec.appealed_open),
                     "line_exceptions": rec.exceptions,
                 },
             )
