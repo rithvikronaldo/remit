@@ -251,7 +251,7 @@ function Pipeline({ trn }) {
               : "⏸ Held for review — money ties out, but flagged lines are waiting in the Exceptions queue."}
           </div>
           <p style={{ marginTop: ".6rem" }}>
-            <a href={`/api/remittances/${trn}/source`} target="_blank" rel="noreferrer">📄 View the original document (the EOB / 835 we read) →</a>
+            <a href={api.sourceUrl(trn)} target="_blank" rel="noreferrer">📄 View the original document (the EOB / 835 we read) →</a>
           </p>
         </>
       )}

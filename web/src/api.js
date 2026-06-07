@@ -35,6 +35,7 @@ export const api = {
   process: (trn) => post(`/remittances/${trn}/process`),
   pipeline: (trn) => get(`/remittances/${trn}/pipeline`),
   decisions: (trn) => get(`/remittances/${trn}/decisions`),
+  sourceUrl: (trn) => `${base}/remittances/${trn}/source`,   // direct link (dev: /api proxy · prod: same-origin)
   reconciliation: (trn) => get(`/remittances/${trn}/reconciliation`),
   exceptions: (status = "open") => get(`/exceptions?status=${status}`),
   resolve: (id, decision, action) =>
