@@ -285,6 +285,49 @@ async def upload_claims(file: UploadFile = File(...)):
     return {"added": added, "total_open_lines": len(state().repo.open_lines())}
 
 
+SAMPLES = [
+    {"id": "clean", "label": "Clean batch", "dir": "fixtures/sample/clean",
+     "description": "A straightforward batch — every line matches and the money posts cleanly."},
+    {"id": "denials", "label": "Denials & appeals", "dir": "fixtures/sample/denials",
+     "description": "Includes denials the AI must interpret — generates items to review in the inbox."},
+]
+
+
+@app.get("/samples")
+def list_samples():
+    """Curated claim + remittance cohorts a visitor can load and play with."""
+    out = []
+    for s in SAMPLES:
+        try:
+            g = json.loads((Path(s["dir"]) / "golden.json").read_text())
+        except Exception:
+            continue
+        out.append({"id": s["id"], "label": s["label"], "description": s["description"],
+                    "payer": g.get("payer", ""), "claims": len(g.get("claims", []))})
+    return out
+
+
+@app.post("/samples/{sample_id}/load")
+def load_sample(sample_id: str):
+    s = next((x for x in SAMPLES if x["id"] == sample_id), None)
+    if not s:
+        raise HTTPException(404, "unknown sample")
+    d = Path(s["dir"])
+    from app.parse import parse_835
+    edi = d / "remit-001.835"
+    pr = parse_835(edi.read_text())
+    trn = pr.remittance.trn
+    if trn not in state().remittances:  # idempotent: re-loading just re-selects it
+        golden = json.loads((d / "golden.json").read_text())
+        state().repo.extend_from_golden(golden)         # seed the matching claims
+        state().seen.register(pr.content_hash)
+        state().remittances[trn] = {"remit": pr.remittance, "source": "835",
+                                    "content_hash": pr.content_hash, "processed": False, "run": None,
+                                    "parse_exceptions": pr.exceptions, "raw": edi.read_bytes()}
+        state().process(trn)
+    return {"remittance_id": trn, "label": s["label"]}
+
+
 @app.get("/remittances/{trn}/source")
 def get_source(trn: str):
     """Serve the original uploaded document (PDF or raw 835) — document-in, data-out."""

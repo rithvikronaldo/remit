@@ -68,6 +68,13 @@ export default function App() {
     }
   }
 
+  async function loadSample(id) {
+    const res = await api.loadSample(id);
+    await refresh();
+    setSelected(res.remittance_id);
+    setTab("Pipeline");
+  }
+
   return (
     <div className="shell">
       <aside className="sidebar">
@@ -104,7 +111,7 @@ export default function App() {
             <b>How this works:</b> the office bills insurance (<b>Claims</b>) → insurance sends back a payment + explanation (<b>Remittances</b>) → the engine reads it, decides each line with deterministic rules + grounded AI (<b>Decisions</b>), records the money and proves it ties to the deposit to the cent (<b>Reconciliation</b>), and routes anything uncertain to a human (<b>Inbox</b>). <b>Pipeline</b> shows one remittance flowing through all of it; <b>Eval</b> scores the engine against known-correct answers.
           </div>
           <main>
-            {tab === "Home" && <Home remits={remits} excCount={excCount} go={setTab} />}
+            {tab === "Home" && <Home remits={remits} excCount={excCount} go={setTab} onLoadSample={loadSample} />}
             {tab === "Pipeline" && <Pipeline trn={selected} />}
             {tab === "Inbox" && <Exceptions onChange={() => api.exceptions("open").then((x) => setExcCount(x.length)).catch(() => {})} />}
             {tab === "Claims" && <Claims />}
@@ -128,7 +135,11 @@ function Stat({ label, value, tone, onClick }) {
   );
 }
 
-function Home({ remits, excCount, go }) {
+function Home({ remits, excCount, go, onLoadSample }) {
+  const [samples, setSamples] = useState([]);
+  const [loadingId, setLoadingId] = useState(null);
+  useEffect(() => { api.samples().then(setSamples).catch(() => {}); }, []);
+  async function pick(id) { setLoadingId(id); try { await onLoadSample(id); } finally { setLoadingId(null); } }
   const total = remits.length;
   const processed = remits.filter((r) => r.processed).length;
   const committed = remits.filter((r) => r.committed).length;
@@ -139,6 +150,21 @@ function Home({ remits, excCount, go }) {
   return (
     <div>
       <p className="caption">A control-tower view of everything Remit has processed in this batch.</p>
+      {samples.length > 0 && (
+        <div className="card">
+          <div className="working-head"><span className="flower">✻</span><b>Try a sample batch</b></div>
+          <p className="mut" style={{ margin: ".1rem 0 .8rem" }}>Load a ready-made claims + remittance cohort and watch Remit process it live.</p>
+          <div className="sample-grid">
+            {samples.map((s) => (
+              <button key={s.id} className="sample-card" onClick={() => pick(s.id)} disabled={loadingId === s.id}>
+                <span className="sample-title">{s.label}</span>
+                <span className="mut" style={{ fontSize: "12px" }}>{s.payer} · {s.claims} claims</span>
+                <span className="sample-desc">{loadingId === s.id ? "Loading…" : s.description}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="stats">
         <Stat label="Remittances" value={total} />
         <Stat label="Committed" value={committed} tone="ok" />

@@ -38,6 +38,12 @@ body { margin: 0; font-family: "Inter", -apple-system, system-ui, "Segoe UI", sa
 .stat-label { color: var(--muted); font-size: 12.5px; }
 .stat.ok .stat-value { color: var(--green); }
 .stat.warn .stat-value { color: var(--amber); }
+.sample-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .7rem; }
+.sample-card { display: flex; flex-direction: column; gap: .3rem; align-items: flex-start; text-align: left; background: #faf8f3; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; cursor: pointer; font: inherit; }
+.sample-card:hover { border-color: var(--ink); background: #fff; }
+.sample-card:disabled { opacity: .6; cursor: default; }
+.sample-title { font-weight: 600; }
+.sample-desc { color: var(--muted); font-size: 12.5px; }
 .summary-lines { display: flex; flex-direction: column; margin-top: .4rem; }
 .sline { display: flex; justify-content: space-between; padding: .6rem .1rem; border-bottom: 1px solid var(--line); font-size: 14px; }
 .sline:last-child { border-bottom: none; }

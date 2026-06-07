@@ -1,0 +1,27 @@
+{
+  "seed": 101,
+  "claims": 10,
+  "payer": "CIGNA DENTAL",
+  "paid_date": "2026-06-01",
+  "rates": {
+    "denial": 0.05,
+    "reversal": 0.0,
+    "cob": 0.0,
+    "overpayment": 0.0,
+    "split": 0.0
+  },
+  "plb": false,
+  "pdf": true,
+  "remittances": [
+    {
+      "trn": "EFT20260601001",
+      "eft_amount": "2329.67",
+      "claims": 10
+    }
+  ],
+  "files": [
+    "remit-001.835",
+    "eob-001.pdf",
+    "golden.json"
+  ]
+}
