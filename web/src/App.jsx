@@ -1,20 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { api } from "./api.js";
 
-const TABS = ["Pipeline", "Claims", "Remittances", "Decisions", "Reconciliation", "Exceptions", "Eval"];
+const NAV = [
+  { id: "Home", label: "Home" },
+  { id: "Pipeline", label: "Pipeline" },
+  { id: "Inbox", label: "Inbox" },
+  { id: "Claims", label: "Claims" },
+  { id: "Remittances", label: "Remittances" },
+  { id: "Decisions", label: "Decisions" },
+  { id: "Reconciliation", label: "Reconciliation" },
+  { id: "Eval", label: "Eval" },
+];
+
+const ICONS = {
+  Home: <><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/></>,
+  Pipeline: <><path d="M3 12h4l3 8 4-16 3 8h4"/></>,
+  Inbox: <><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></>,
+  Claims: <><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></>,
+  Remittances: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></>,
+  Decisions: <><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></>,
+  Reconciliation: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+  Eval: <><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></>,
+};
+function NavIcon({ name }) {
+  return (
+    <svg className="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      {ICONS[name] || null}
+    </svg>
+  );
+}
 
 export default function App() {
-  const [tab, setTab] = useState("Pipeline");
+  const [tab, setTab] = useState("Home");
   const [remits, setRemits] = useState([]);
   const [selected, setSelected] = useState(null);
   const [uploading, setUploading] = useState("");
+  const [excCount, setExcCount] = useState(0);
 
-  const refresh = () =>
-    api.remittances().then((r) => {
-      setRemits(r);
-      if (r.length && !selected) setSelected(r[0].remittance_id);
-      return r;
-    });
+  const refresh = async () => {
+    const r = await api.remittances();
+    setRemits(r);
+    if (r.length && !selected) setSelected(r[0].remittance_id);
+    api.exceptions("open").then((x) => setExcCount(x.length)).catch(() => {});
+    return r;
+  };
 
   useEffect(() => { refresh().catch(() => {}); }, []);
 
@@ -40,83 +69,166 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <header>
-        <div className="brand">
-          <h1>Remit</h1>
-          <span className="sub">AI remittance adjudication engine</span>
-        </div>
-        <div className="uploader">
+    <div className="shell">
+      <aside className="sidebar">
+        <div className="side-brand"><span className="flower">✻</span><h1>Remit</h1></div>
+        <nav className="side-nav">
+          {NAV.map((n) => (
+            <button key={n.id} className={n.id === tab ? "active" : ""} onClick={() => setTab(n.id)}>
+              <NavIcon name={n.id} />
+              <span>{n.label}</span>
+              {n.id === "Inbox" && excCount > 0 && <span className="badge">{excCount}</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      <div className="content">
+        <div className="topbar">
+          <span className="page-title">{tab}</span>
+          <span className="spacer" />
+          {uploading && <span className="upload-status">{uploading}</span>}
+          <select value={selected || ""} onChange={(e) => setSelected(e.target.value)}>
+            {remits.map((r) => (
+              <option key={r.remittance_id} value={r.remittance_id}>{r.remittance_id} · {r.payer}</option>
+            ))}
+          </select>
           <label className="upload-btn">
-            ⬆ Upload remittance (835 / PDF)
+            ⬆ Upload remittance
             <input type="file" accept=".835,.txt,.pdf,application/pdf" onChange={handleUpload} hidden />
           </label>
-          {uploading && <span className="upload-status">{uploading}</span>}
         </div>
-      </header>
 
-      <div className="howto">
-        <b>How this works:</b> the office bills insurance (<b>Claims</b>) → insurance sends back a payment + explanation (<b>Remittances</b>) → the engine reads it, decides each line with deterministic rules + grounded AI (<b>Decisions</b>), records the money and proves it ties to the deposit to the cent (<b>Reconciliation</b>), and routes anything uncertain to a human (<b>Exceptions</b>). <b>Pipeline</b> shows one remittance flowing through all of it; <b>Eval</b> scores the engine against known-correct answers.
+        <div className="content-inner">
+          <div className="howto">
+            <b>How this works:</b> the office bills insurance (<b>Claims</b>) → insurance sends back a payment + explanation (<b>Remittances</b>) → the engine reads it, decides each line with deterministic rules + grounded AI (<b>Decisions</b>), records the money and proves it ties to the deposit to the cent (<b>Reconciliation</b>), and routes anything uncertain to a human (<b>Inbox</b>). <b>Pipeline</b> shows one remittance flowing through all of it; <b>Eval</b> scores the engine against known-correct answers.
+          </div>
+          <main>
+            {tab === "Home" && <Home remits={remits} excCount={excCount} go={setTab} />}
+            {tab === "Pipeline" && <Pipeline trn={selected} />}
+            {tab === "Inbox" && <Exceptions onChange={() => api.exceptions("open").then((x) => setExcCount(x.length)).catch(() => {})} />}
+            {tab === "Claims" && <Claims />}
+            {tab === "Remittances" && <Remittances remits={remits} />}
+            {tab === "Decisions" && <Decisions trn={selected} />}
+            {tab === "Reconciliation" && <Reconciliation trn={selected} remit={remits.find((r) => r.remittance_id === selected)} />}
+            {tab === "Eval" && <Eval />}
+          </main>
+        </div>
       </div>
-
-      <nav>
-        {TABS.map((t) => (
-          <button key={t} className={t === tab ? "active" : ""} onClick={() => setTab(t)}>{t}</button>
-        ))}
-        <select value={selected || ""} onChange={(e) => setSelected(e.target.value)}>
-          {remits.map((r) => (
-            <option key={r.remittance_id} value={r.remittance_id}>{r.remittance_id} · {r.payer}</option>
-          ))}
-        </select>
-      </nav>
-
-      <main>
-        {tab === "Pipeline" && <Pipeline trn={selected} />}
-        {tab === "Claims" && <Claims />}
-        {tab === "Remittances" && <Remittances remits={remits} />}
-        {tab === "Decisions" && <Decisions trn={selected} />}
-        {tab === "Reconciliation" && <Reconciliation trn={selected} remit={remits.find((r) => r.remittance_id === selected)} />}
-        {tab === "Exceptions" && <Exceptions />}
-        {tab === "Eval" && <Eval />}
-      </main>
     </div>
   );
 }
 
+function Stat({ label, value, tone, onClick }) {
+  return (
+    <div className={"stat " + (tone || "") + (onClick ? " clickable" : "")} onClick={onClick}>
+      <span className="stat-value">{value}</span>
+      <span className="stat-label">{label}</span>
+    </div>
+  );
+}
+
+function Home({ remits, excCount, go }) {
+  const total = remits.length;
+  const processed = remits.filter((r) => r.processed).length;
+  const committed = remits.filter((r) => r.committed).length;
+  const held = remits.filter((r) => r.processed && !r.committed).length;
+  const reconciled = remits.filter((r) => r.tied).length;
+  const sum = remits.reduce((a, r) => a + parseFloat(r.eft_amount || 0), 0);
+  const money = "$" + sum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (
+    <div>
+      <p className="caption">A control-tower view of everything Remit has processed in this batch.</p>
+      <div className="stats">
+        <Stat label="Remittances" value={total} />
+        <Stat label="Committed" value={committed} tone="ok" />
+        <Stat label="Held for review" value={held} tone={held ? "warn" : ""} />
+        <Stat label="In your inbox" value={excCount} tone={excCount ? "warn" : "ok"} onClick={() => go("Inbox")} />
+        <Stat label="Total processed" value={money} />
+      </div>
+      <div className="card">
+        <div className="working-head"><span className="flower">✻</span><b>Batch summary</b></div>
+        <div className="summary-lines">
+          <div className="sline"><span>Remittances processed</span><span className="num">{processed} / {total}</span></div>
+          <div className="sline"><span>Reconciled to the cent</span><span className="num">{reconciled} / {total}</span></div>
+          <div className="sline"><span>Committed (posted)</span><span className="num">{committed}</span></div>
+          <div className="sline"><span>Held for review</span><span className="num">{held}</span></div>
+          <div className="sline"><span>Items in your inbox</span><span className="num">{excCount}</span></div>
+          <div className="sline"><span>Total amount processed</span><span className="num">{money}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const STAGE_ICON = { Ingest: "📥", "Parse / Extract": "📄", Match: "🔗", Decide: "🧠", Settle: "💰", Reconcile: "✅", Exceptions: "🚩" };
+const STAGE_VERB = { Ingest: "Reading the file", "Parse / Extract": "Extracting and checking the math", Match: "Matching lines to claims", Decide: "Deciding each line", Settle: "Recording the money", Reconcile: "Reconciling to the deposit", Exceptions: "Routing exceptions to review" };
+const STAGE_SVG = {
+  Ingest: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+  "Parse / Extract": <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></>,
+  Match: <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+  Decide: ICONS.Decisions,
+  Settle: <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+  Reconcile: ICONS.Reconciliation,
+  Exceptions: <><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>,
+};
+function StageIcon({ name }) {
+  return <svg className="task-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{STAGE_SVG[name] || null}</svg>;
+}
+
 function Pipeline({ trn }) {
   const [p, setP] = useState(null);
-  useEffect(() => { if (trn) api.pipeline(trn).then(setP).catch(() => setP(null)); }, [trn]);
-  if (!p) return <p>Select a remittance.</p>;
-  const icons = { Ingest: "📥", "Parse / Extract": "📄", Match: "🔗", Decide: "🧠",
-                  Settle: "💰", Reconcile: "✅", Exceptions: "🚩" };
+  const [active, setActive] = useState(0);
+  const [runId, setRunId] = useState(0);
+  useEffect(() => {
+    if (!trn) { setP(null); return; }
+    setP(null); setActive(0);
+    api.pipeline(trn).then((data) => { setP(data); setActive(0); }).catch(() => setP(null));
+  }, [trn, runId]);
+  useEffect(() => {
+    if (!p || active >= p.stages.length) return;
+    const t = setTimeout(() => setActive((a) => a + 1), 700);
+    return () => clearTimeout(t);
+  }, [p, active]);
+  if (!p) return <p className="mut">Select a remittance to watch it process.</p>;
+  const done = active >= p.stages.length;
   return (
-    <div className="pipe">
-      <p className="caption">
-        One insurance remittance, left → right through every stage. This is the whole workflow:
-        read it in, interpret each coded line (rules for the routine ones, grounded AI for denials),
-        record the money, prove it ties to the deposit, and hand anything uncertain to a human.
-      </p>
-      <div className="flow">
-        {p.stages.map((s, i) => (
-          <React.Fragment key={s.name}>
-            <div className={"stage " + s.status}>
-              <div className="ic">{icons[s.name] || "•"}</div>
-              <div className="nm">{s.name}</div>
-              <div className="sm">{s.summary}</div>
-              <div className="dt">{s.detail}</div>
+    <div className="working">
+      <div className="working-head">
+        <span className="flower">✻</span>
+        <b>{done ? "Remit — finished" : "Remit working…"}</b>
+        <span className="mut" style={{ marginLeft: "auto", fontSize: "13px" }}>{trn}</span>
+        {done && <button className="linklike" style={{ marginLeft: ".75rem" }} onClick={() => setRunId((r) => r + 1)}>↻ replay</button>}
+      </div>
+      <div className="tasks">
+        {p.stages.map((s, i) => {
+          const state = active > i ? "settled" : active === i ? "working" : "upcoming";
+          return (
+            <div key={s.name} className={`task ${state} ${state === "settled" ? "s-" + s.status : ""}`}>
+              <span className="task-status">
+                {state === "working" && <span className="spinner" />}
+                {state === "upcoming" && <span className="dashed-circle" />}
+                {state === "settled" && (s.status === "done" ? <span className="check">✓</span> : <span className="warnmark">!</span>)}
+              </span>
+              <StageIcon name={s.name} />
+              <span className="task-label">{s.name}<span className="mut"> — {state === "working" ? (STAGE_VERB[s.name] || "working") + "…" : s.detail}</span></span>
+              <span className="task-right mut">{state === "settled" ? s.summary : state === "working" ? "working…" : "up next"}</span>
             </div>
-            {i < p.stages.length - 1 && <div className="arrow">→</div>}
-          </React.Fragment>
-        ))}
+          );
+        })}
       </div>
-      <div className={"outcome " + (p.committed ? "ok" : "held")}>
-        {p.committed
-          ? "✓ Reconciled and committed — every dollar accounted for, ties to the deposit."
-          : "⏸ Held for review — money ties out, but a flagged line is waiting in the Exceptions queue."}
-      </div>
-      <p style={{ marginTop: ".6rem" }}>
-        <a href={`/api/remittances/${trn}/source`} target="_blank" rel="noreferrer">📄 View the original document (the EOB / 835 we read) →</a>
-      </p>
+      {done && (
+        <>
+          <div className={"outcome " + (p.committed ? "ok" : "held")} style={{ marginTop: "1rem" }}>
+            {p.committed
+              ? "✓ Reconciled and committed — every dollar accounted for, ties to the deposit."
+              : "⏸ Held for review — money ties out, but flagged lines are waiting in the Exceptions queue."}
+          </div>
+          <p style={{ marginTop: ".6rem" }}>
+            <a href={`/api/remittances/${trn}/source`} target="_blank" rel="noreferrer">📄 View the original document (the EOB / 835 we read) →</a>
+          </p>
+        </>
+      )}
     </div>
   );
 }
@@ -321,29 +433,60 @@ function Evidence({ ev }) {
   );
 }
 
-function Exceptions() {
-  const [items, setItems] = useState([]);
-  const load = () => api.exceptions("open").then(setItems).catch(() => setItems([]));
-  useEffect(() => { load(); }, []);
-  const resolve = async (id, decision, action) => { await api.resolve(id, decision, action); load(); };
+function ReviewPanel({ item, onResolve }) {
   return (
     <div>
-      <p className="exc-count"><b>{items.length}</b> open · each is held for a human to accept the recommendation or override it.</p>
-      {items.map((i) => (
-        <div key={i.id} className="card">
-          <div className="exc-head">
-            <span className={"exc-badge b-" + i.reason}>{REASON_LABEL[i.reason] || i.reason}</span>
-            {(i.claim_id || i.cdt_code) && <span className="exc-claim">{i.claim_id} {i.cdt_code}</span>}
-            <span className="exc-rec">recommend: <b>{i.recommended_action}</b></span>
-          </div>
-          <Evidence ev={i.evidence} />
-          <div className="actions">
-            <button onClick={() => resolve(i.id, "accept")}>Accept ({i.recommended_action})</button>
-            <button onClick={() => resolve(i.id, "override", "contractual_writeoff")}>Override → write-off</button>
-            <button onClick={() => resolve(i.id, "override", "bill_patient")}>Override → bill patient</button>
-          </div>
+      <div className="prepared">✻ Remit prepared a recommendation — review it, then approve or override.</div>
+      <div className="exc-head">
+        <span className={"exc-badge b-" + item.reason}>{REASON_LABEL[item.reason] || item.reason}</span>
+        {(item.claim_id || item.cdt_code) && <span className="exc-claim">{item.claim_id} {item.cdt_code}</span>}
+      </div>
+      <Evidence ev={item.evidence} />
+      <p className="mut" style={{ marginTop: ".6rem" }}>Recommended action: <b>{item.recommended_action}</b></p>
+      <div className="review-actions">
+        <button className="btn-approve" onClick={() => onResolve(item.id, "accept")}>✓ Approve ({item.recommended_action})</button>
+        <button onClick={() => onResolve(item.id, "override", "contractual_writeoff")}>Override → write-off</button>
+        <button onClick={() => onResolve(item.id, "override", "bill_patient")}>Override → bill patient</button>
+      </div>
+    </div>
+  );
+}
+
+function Exceptions({ onChange }) {
+  const [items, setItems] = useState([]);
+  const [sel, setSel] = useState(null);
+  const load = () => api.exceptions("open").then((x) => {
+    setItems(x);
+    setSel((s) => (x.some((i) => i.id === s) ? s : (x[0]?.id ?? null)));
+  }).catch(() => setItems([]));
+  useEffect(() => { load(); }, []);
+  const resolve = async (id, decision, action) => { await api.resolve(id, decision, action); load(); onChange?.(); };
+  const selected = items.find((i) => i.id === sel) || null;
+
+  if (items.length === 0) {
+    return (
+      <div>
+        <p className="caption">Your <b>inbox</b> — everything the engine flagged for a human.</p>
+        <div className="prepared">✓ Inbox zero — nothing needs review right now.</div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      <p className="caption">Your <b>inbox</b> — everything the engine flagged for a human. Remit drafts a recommendation for each; you approve it or override.</p>
+      <div className="inbox">
+        <div className="inbox-list">
+          {items.map((i) => (
+            <button key={i.id} className={"inbox-row " + (i.id === sel ? "active" : "")} onClick={() => setSel(i.id)}>
+              <span className={"exc-badge b-" + i.reason}>{REASON_LABEL[i.reason] || i.reason}</span>
+              <span className="row-sub">{i.claim_id || "—"} {i.cdt_code || ""} · rec: {i.recommended_action}</span>
+            </button>
+          ))}
         </div>
-      ))}
+        <div className="inbox-detail">
+          {selected ? <ReviewPanel item={selected} onResolve={resolve} /> : <p className="mut">Select an item.</p>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -353,7 +496,7 @@ function Eval() {
   return (
     <div>
       <p className="caption">The "how do we know it works" check: scores the engine against a golden set of known-correct answers — decision accuracy, reconcile pass-rate, exception precision/recall, latency. <b>meets_targets</b> is the regression gate; it must stay true or the build fails.</p>
-      <button onClick={() => api.runEval().then(setM).catch(() => {})}>Run pipeline eval</button>
+      <button className="btn" onClick={() => api.runEval().then(setM).catch(() => {})}>Run pipeline eval</button>
       {m && (
         <table><tbody>
           {Object.entries(m).filter(([, v]) => typeof v !== "object").map(([k, v]) => (
