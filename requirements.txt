@@ -6,6 +6,10 @@ python-dateutil>=2.9
 reportlab>=4.1
 pypdf>=4.2
 
+# --- Scanned-EOB synthesis (vision-path demo input, gen/eob_scan.py) ---
+pymupdf>=1.24            # rasterize a digital EOB to image-only (no poppler/system deps)
+pillow>=10.0            # degrade the raster: grayscale / skew / fax grain / smudge a cell
+
 # --- Local embeddings (Phase 1) — free, runs offline, no per-query API cost ---
 fastembed>=0.3            # ONNX (no torch); BAAI/bge-small-en-v1.5, 384-dim
 

@@ -22,6 +22,10 @@ db:  ## Bring up Postgres (+pgvector)
 gen:  ## Generate a reproducible synthetic remittance + golden truth (SEED, CLAIMS, DENIAL)
 	python -m gen --seed $(SEED) --claims $(CLAIMS) --denial-rate $(DENIAL) --pdf --out $(OUT)
 
+.PHONY: scan-sample
+scan-sample:  ## Synthesize a degraded, image-only scanned EOB → fixtures/scanned_eob.pdf (exercises the vision path)
+	python -m gen.eob_scan --out fixtures/scanned_eob.pdf
+
 .PHONY: corpus eval pipeline demo
 corpus:    ## (Phase 1) build + embed the knowledge base; print a summary
 	python -m app.kb.build
