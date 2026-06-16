@@ -25,6 +25,7 @@ from gen.claim_factory import (
     ROLE_DENIAL,
     ROLE_OVERPAYMENT,
     ROLE_REVERSAL,
+    ROLE_UNDERPAYMENT,
 )
 from gen.fee_schedule import allowed_amount
 
@@ -35,6 +36,7 @@ _STATUS = {
     "normal": "1",
     "split": "1",
     "overpayment": "1",
+    ROLE_UNDERPAYMENT: "1",   # the claim is "paid" — just paid less than the contract
     ROLE_COB: "2",
     ROLE_DENIAL: "4",
     ROLE_REVERSAL: "22",
@@ -114,6 +116,52 @@ def _overpayment_line(rng: random.Random, payer: str, cdt: str, billed: Decimal)
     return line, {"overpayment": True, "expected_action": "review"}
 
 
+def _underpayment_line(rng: random.Random, payer: str, cdt: str, billed: Decimal) -> tuple[ClaimLine, dict]:
+    """The payer allows *less* than the contracted rate and buries the shortfall in a
+    larger CO-45 write-off. The line still balances (billed == paid + Σadj) and the
+    deposit still reconciles — only a comparison against the contract reveals the
+    money withheld. ``recoverable`` = the payer-share shortfall.
+    """
+    base = _normal_line(rng, payer, cdt, billed)
+    contracted = base.allowed                       # what the contract entitles
+    target = money(contracted * Decimal(str(rng.uniform(0.08, 0.20))))
+    shortfall = money(min(target, base.paid))       # never push paid below zero
+    if shortfall <= ZERO:                           # nothing was paid to withhold
+        return base, {"underpaid": False, "expected_action": "settled"}
+
+    stated_allowed = money(contracted - shortfall)
+    new_paid = money(base.paid - shortfall)
+
+    adjustments: list[Adjustment] = []
+    bumped = False
+    for a in base.adjustments:
+        if a.group_code == "CO" and a.reason_code == CO_FEE_SCHEDULE_CARC:
+            adjustments.append(Adjustment(group_code="CO", reason_code=CO_FEE_SCHEDULE_CARC,
+                                          amount=money(a.amount + shortfall)))
+            bumped = True
+        else:
+            adjustments.append(a)
+    if not bumped:
+        adjustments.insert(0, Adjustment(group_code="CO", reason_code=CO_FEE_SCHEDULE_CARC, amount=shortfall))
+
+    line = ClaimLine(
+        cdt_code=cdt,
+        billed=billed,
+        allowed=stated_allowed,
+        paid=new_paid,
+        adjustments=adjustments,
+        patient_responsibility=base.patient_responsibility,
+    )
+    note = {
+        "underpaid": True,
+        "contracted_allowed": str(contracted),
+        "stated_allowed": str(stated_allowed),
+        "recoverable": str(shortfall),
+        "expected_action": "review",
+    }
+    return line, note
+
+
 def _negate_line(line: ClaimLine) -> ClaimLine:
     return ClaimLine(
         cdt_code=line.cdt_code,
@@ -138,6 +186,9 @@ def adjudicate_claim(rng: random.Random, raw: RawClaim, payer: str) -> Adjudicat
             notes[idx] = note
         elif raw.role == ROLE_OVERPAYMENT:
             line, note = _overpayment_line(rng, payer, rl.cdt_code, rl.billed)
+            notes[idx] = note
+        elif raw.role == ROLE_UNDERPAYMENT:
+            line, note = _underpayment_line(rng, payer, rl.cdt_code, rl.billed)
             notes[idx] = note
         else:
             line = _normal_line(rng, payer, rl.cdt_code, rl.billed)

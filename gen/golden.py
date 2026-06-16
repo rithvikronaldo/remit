@@ -36,6 +36,7 @@ def _line_golden(line: ClaimLine, role: str, note: dict) -> dict:
     denial_carc = note.get("denial_carc")
     is_denial = denial_carc is not None
     overpayment = bool(note.get("overpayment"))
+    underpaid = bool(note.get("underpaid"))
     reversal = role == ROLE_REVERSAL
 
     adjustments = []
@@ -72,6 +73,13 @@ def _line_golden(line: ClaimLine, role: str, note: dict) -> dict:
         settlement = {"insurance_paid": f"{line.paid:.2f}", "contractual_writeoff": f"{W:.2f}",
                       "patient_responsibility": "0.00", "secondary_responsibility": f"{R:.2f}"}
         status = "settled"
+    elif underpaid:
+        # Money moved and the line balances; it's flagged because the payer paid
+        # below the contracted rate (only the contract reveals it).
+        settlement = {"insurance_paid": f"{line.paid:.2f}", "contractual_writeoff": f"{W:.2f}",
+                      "patient_responsibility": f"{R:.2f}", "secondary_responsibility": "0.00"}
+        status = "queued"
+        expected_exception = "underpayment"
     else:  # normal / split / reversal
         settlement = {"insurance_paid": f"{line.paid:.2f}", "contractual_writeoff": f"{W:.2f}",
                       "patient_responsibility": f"{R:.2f}", "secondary_responsibility": "0.00"}
@@ -89,6 +97,12 @@ def _line_golden(line: ClaimLine, role: str, note: dict) -> dict:
     }
     if expected_exception:
         out["expected_exception"] = expected_exception
+    if underpaid:
+        out["underpayment"] = {
+            "contracted_allowed": f"{money(note['contracted_allowed']):.2f}",
+            "stated_allowed": f"{money(note['stated_allowed']):.2f}",
+            "recoverable": f"{money(note['recoverable']):.2f}",
+        }
     return out
 
 

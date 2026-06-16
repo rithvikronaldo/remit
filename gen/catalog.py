@@ -25,13 +25,9 @@ PAYERS: list[str] = [
     "METLIFE DENTAL",
 ]
 
-# Per-payer fee-schedule factor (allowed ≈ billed * factor); see fee_schedule.py.
-PAYER_FACTOR: dict[str, float] = {
-    "DELTA DENTAL OF EXAMPLE": 0.70,
-    "CIGNA DENTAL": 0.65,
-    "AETNA DENTAL": 0.75,
-    "METLIFE DENTAL": 0.68,
-}
+# Per-payer contracted fee schedule (allowed ≈ billed * factor) now lives in the
+# auditable artifact contracts/fee_schedules.json, read via app.contracts — the
+# single source of truth shared by the generator and the underpayment detector.
 
 # X12 sender/receiver ids per payer (ISA/GS envelope), kept stable per payer.
 PAYER_X12_ID: dict[str, str] = {

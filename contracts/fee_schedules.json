@@ -1,0 +1,27 @@
+{
+  "_description": "The practice's contracted PPO fee schedules, per payer. This is the source of truth the engine compares each EOB's stated 'allowed' against to detect underpayments — money a payer withheld below the rate it agreed to. An auditable artifact, not buried code: change a contract here, the engine re-reasons. The contracted allowed for a line is `factor * billed` (a percent of the billed charge), clamped to billed, unless a fixed per-CDT amount overrides it.",
+  "payee": "BRIGHT SMILE DENTAL",
+  "default_factor": 0.70,
+  "payers": {
+    "DELTA DENTAL OF EXAMPLE": {
+      "effective_date": "2026-01-01",
+      "factor": 0.70,
+      "cdt_amounts": {}
+    },
+    "CIGNA DENTAL": {
+      "effective_date": "2026-01-01",
+      "factor": 0.65,
+      "cdt_amounts": {}
+    },
+    "AETNA DENTAL": {
+      "effective_date": "2026-01-01",
+      "factor": 0.75,
+      "cdt_amounts": {}
+    },
+    "METLIFE DENTAL": {
+      "effective_date": "2026-01-01",
+      "factor": 0.68,
+      "cdt_amounts": {}
+    }
+  }
+}

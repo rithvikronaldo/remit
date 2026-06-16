@@ -20,6 +20,7 @@ ROLE_REVERSAL = "reversal"
 ROLE_COB = "cob"
 ROLE_OVERPAYMENT = "overpayment"
 ROLE_SPLIT = "split"
+ROLE_UNDERPAYMENT = "underpayment"   # payer allows below the contracted rate (silent shortfall)
 
 
 @dataclass
@@ -44,6 +45,7 @@ class RatesConfig:
     cob: float = 0.0
     overpayment: float = 0.0
     split: float = 0.0
+    underpayment: float = 0.0
 
 
 def _assign_role(rng: random.Random, rates: RatesConfig) -> str:
@@ -56,6 +58,7 @@ def _assign_role(rng: random.Random, rates: RatesConfig) -> str:
         (ROLE_COB, rates.cob),
         (ROLE_OVERPAYMENT, rates.overpayment),
         (ROLE_SPLIT, rates.split),
+        (ROLE_UNDERPAYMENT, rates.underpayment),
     ):
         cumulative += rate
         if roll < cumulative:

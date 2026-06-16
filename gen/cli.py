@@ -40,6 +40,8 @@ def parse_args(argv=None):
     p.add_argument("--cob-rate", type=float, default=0.0)
     p.add_argument("--overpayment-rate", type=float, default=0.0)
     p.add_argument("--split-rate", type=float, default=0.0)
+    p.add_argument("--underpayment-rate", type=float, default=0.0,
+                   help="fraction of claims the payer underpays below the contracted rate")
     p.add_argument("--plb", action="store_true", help="add a provider-level adjustment to the primary remittance")
     p.add_argument("--pdf", action="store_true", help="also render EOB PDFs (requires reportlab)")
     p.add_argument("--paid-date", type=date.fromisoformat, default=DEFAULT_PAID_DATE)
@@ -55,6 +57,7 @@ def main(argv=None) -> int:
     rates = RatesConfig(
         denial=args.denial_rate, reversal=args.reversal_rate, cob=args.cob_rate,
         overpayment=args.overpayment_rate, split=args.split_rate,
+        underpayment=args.underpayment_rate,
     )
     raw_claims = build_claims(rng, args.claims, rates, args.paid_date)
     adjudicated = [adjudicate_claim(rng, rc, payer) for rc in raw_claims]

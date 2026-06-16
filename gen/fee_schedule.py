@@ -1,21 +1,19 @@
-"""Per-payer, per-CDT allowed amounts.
+"""Per-payer, per-CDT allowed amounts — sourced from the practice's contracted fee
+schedule (``contracts/fee_schedules.json`` via ``app.contracts``).
 
 The allowed amount drives the contractual write-off (``CO-45 = billed - allowed``).
-We derive it from a per-payer factor against the billed charge and clamp to the
-billed amount, so ``allowed <= billed`` always holds (the write-off is never
-negative on a normal line). Quantized to cents.
+The generator and the engine read the *same* contract artifact, so the "expected"
+allowed the underpayment detector checks against is exactly what a faithfully-paid
+line would receive. ``allowed <= billed`` always holds (write-off never negative).
 """
 
 from __future__ import annotations
 
 from decimal import Decimal
 
-from app.models import money
-from gen.catalog import PAYER_FACTOR
+from app.contracts import contracted_allowed
 
 
 def allowed_amount(payer: str, cdt_code: str, billed: Decimal) -> Decimal:
-    """The payer's allowed amount for a billed line. Deterministic given inputs."""
-    factor = PAYER_FACTOR.get(payer, 0.70)
-    allowed = money(Decimal(str(factor)) * billed)
-    return min(allowed, money(billed))
+    """The payer's allowed amount for a billed line, per contract. Deterministic."""
+    return contracted_allowed(payer, cdt_code, billed)

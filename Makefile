@@ -3,6 +3,7 @@
 SEED   ?= 42
 CLAIMS ?= 20
 DENIAL ?= 0.1
+UNDER  ?= 0.0
 OUT    ?= fixtures/run-$(SEED)
 
 .PHONY: help
@@ -19,8 +20,8 @@ db:  ## Bring up Postgres (+pgvector)
 	docker compose up -d db
 
 .PHONY: gen
-gen:  ## Generate a reproducible synthetic remittance + golden truth (SEED, CLAIMS, DENIAL)
-	python -m gen --seed $(SEED) --claims $(CLAIMS) --denial-rate $(DENIAL) --pdf --out $(OUT)
+gen:  ## Generate a reproducible synthetic remittance + golden truth (SEED, CLAIMS, DENIAL, UNDER)
+	python -m gen --seed $(SEED) --claims $(CLAIMS) --denial-rate $(DENIAL) --underpayment-rate $(UNDER) --pdf --out $(OUT)
 
 .PHONY: scan-sample
 scan-sample:  ## Synthesize a degraded, image-only scanned EOB → fixtures/scanned_eob.pdf (exercises the vision path)
