@@ -11,6 +11,7 @@ Every fail-closed path lands here with its evidence and a recommended action:
     uncited_or_fabricated_citation(decide — guardrail)
     reconciliation_break          (reconcile)
     review_required               (settle — flagged line, e.g. overpayment)
+    underpayment                  (detect — paid below the contracted rate)
 
 Resolution: accept the recommendation (which then settles) or override it
 (operator picks the action → settles). Every resolution is captured to seed the
@@ -35,6 +36,7 @@ DEFAULT_RECOMMENDED = {
     "reconciliation_break": "review",
     "review_required": "review",
     "settlement_not_balanced": "review",
+    "underpayment": "review",
 }
 
 VALID_ACTIONS = {"contractual_writeoff", "bill_patient", "bill_secondary", "appeal", "review"}

@@ -2,7 +2,8 @@
 
 Ties the phases together for one remittance:
 
-    ingest → parse(835) | extract(PDF) → match → settle (decide inside) → reconcile
+    ingest → parse(835) | extract(PDF) → match → settle (decide inside)
+           → detect (revenue integrity) → reconcile
 
 and routes every stage's exceptions into a shared queue. This is what the eval
 harness (Phase 9) and the dashboard/demo (Phase 10) drive. Settlement commits only
@@ -16,6 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from app.detect import UnderpaymentResult, apply_findings, detect_underpayments
 from app.exceptions import ExceptionQueue, ingest_results
 from app.ingest import content_hash, detect_source_type
 from app.match import OpenClaimRepository, match_remittance
@@ -38,6 +40,7 @@ class RemittanceRun:
     records_written: int
     latency_ms: float
     parse_exceptions: list[dict] = field(default_factory=list)
+    underpayment: Optional[UnderpaymentResult] = None
 
 
 def process_remittance(
@@ -50,6 +53,10 @@ def process_remittance(
 
     match_result = match_remittance(remit, repo)
     settlement = settle_remittance(remit, store=store, chain=chain, cache=cache)
+    # Revenue integrity: a contract break isn't an arithmetic break — the line
+    # balances and the deposit ties, so only the contract comparison can see it.
+    underpayment = detect_underpayments(remit)
+    apply_findings(settlement, underpayment)
     recon = reconcile(remit, settlement)
 
     # Route everything fail-closed into the queue.
@@ -66,7 +73,7 @@ def process_remittance(
         unmatched_count=len(match_result.exceptions), settlement=settlement,
         reconciliation=recon, committed=committed, records_written=written,
         latency_ms=round((time.perf_counter() - t0) * 1000, 2),
-        parse_exceptions=parse_exceptions,
+        parse_exceptions=parse_exceptions, underpayment=underpayment,
     )
 
 

@@ -33,6 +33,7 @@ from app.decide.cache import DecisionCache
 from app.decide.chain import default_chain
 from app.decide.decide import decide_adjustment
 from app.exceptions import ExceptionQueue, ingest_results
+from app.detect import apply_findings, detect_underpayments
 from app.ingest import SeenRegistry, content_hash, detect_source_type
 from app.kb.build import default_store
 from app.match import OpenClaimRepository, match_remittance
@@ -110,6 +111,8 @@ class AppState:
         remit = entry["remit"]
         match_result = match_remittance(remit, self.repo)
         settlement = settle_remittance(remit, store=self.store, chain=self.chain, cache=self.cache)
+        underpayment = detect_underpayments(remit)
+        apply_findings(settlement, underpayment)
         recon = reconcile(remit, settlement)
         ingest_results(self.queue, match_result=match_result, settlement=settlement, recon=recon)
         for e in entry.get("parse_exceptions", []):
@@ -119,7 +122,7 @@ class AppState:
         if committed:
             self.settlement_store.commit(settlement)
         entry.update({"processed": True, "match": match_result, "settlement": settlement,
-                      "recon": recon, "committed": committed})
+                      "recon": recon, "committed": committed, "underpayment": underpayment})
         return entry
 
     def pipeline(self, trn: str) -> dict:
