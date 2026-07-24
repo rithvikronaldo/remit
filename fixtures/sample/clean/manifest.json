@@ -14,7 +14,7 @@
   "pdf": true,
   "remittances": [
     {
-      "trn": "EFT20260601001",
+      "trn": "EFT2026SAMPLEA1",
       "eft_amount": "2329.67",
       "claims": 10
     }

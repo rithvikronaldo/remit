@@ -4,7 +4,7 @@
   "paid_date": "2026-06-01",
   "remittances": [
     {
-      "trn": "EFT20260601001",
+      "trn": "EFT2026SAMPLEB2",
       "eft_amount": "1535.23",
       "plb_amount": "0.00",
       "claim_ids": [
