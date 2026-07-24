@@ -188,3 +188,7 @@ tbody tr:last-child td { border-bottom: none; }
 .outcome { margin-top: .5rem; padding: .8rem 1.1rem; border-radius: 12px; font-weight: 600; }
 .outcome.ok { background: var(--green-bg); color: var(--green); }
 .outcome.held { background: var(--amber-bg); color: var(--amber); }
+
+/* Revenue-integrity (underpayment) evidence: the recoverable cell gets the amber accent. */
+.ev-item.hot { border-color: #ecdcb4; background: var(--amber-bg); }
+.ev-item.hot .ev-v { color: var(--amber); }

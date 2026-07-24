@@ -65,6 +65,24 @@ def _recon_dict(r) -> dict:
     }
 
 
+def _detect_stage(up) -> dict:
+    """Pipeline-stage card for the revenue-integrity pass (the underpayment detector)."""
+    if up is None:
+        return {"name": "Detect", "status": "done", "summary": "—",
+                "detail": "compare to contracted rates"}
+    if not up.contract_on_file:
+        return {"name": "Detect", "status": "done", "summary": "no contract on file",
+                "detail": f"no fee schedule for {up.payer} — nothing to compare against"}
+    if not up.findings:
+        return {"name": "Detect", "status": "done",
+                "summary": f"{up.lines_checked} lines at contract",
+                "detail": "every line paid at the contracted rate"}
+    return {"name": "Detect", "status": "warn",
+            "summary": f"${up.total_recoverable} at risk",
+            "detail": (f"{len(up.findings)} lines paid below the contracted rate — "
+                       "the math balances; only the contract reveals it")}
+
+
 def _exception_dict(i) -> dict:
     return {
         "id": i.id, "reason": i.reason, "recommended_action": i.recommended_action,
@@ -141,8 +159,8 @@ class AppState:
         ]
         if not e.get("processed"):
             for nm, d in [("Match", "link to open claims"), ("Decide", "rules + RAG"),
-                          ("Settle", "record amounts"), ("Reconcile", "tie to EFT"),
-                          ("Exceptions", "human review")]:
+                          ("Settle", "record amounts"), ("Detect", "compare to contracted rates"),
+                          ("Reconcile", "tie to EFT"), ("Exceptions", "human review")]:
                 stages.append({"name": nm, "status": "pending", "summary": "—", "detail": d})
             return {"remittance_id": trn, "committed": False, "stages": stages}
 
@@ -167,6 +185,7 @@ class AppState:
             {"name": "Settle", "status": "warn" if st.get("queued") else "done",
              "summary": f"{len(s.records)} lines settled",
              "detail": " · ".join(f"{k}:{v}" for k, v in st.items()) or "—"},
+            _detect_stage(e.get("underpayment")),
             {"name": "Reconcile", "status": "done" if r.tied else "fail",
              "summary": f"delta ${r.delta}",
              "detail": "Σ paid + PLB == EFT, tied to the cent" if r.tied else "BREAK — held"},
@@ -261,10 +280,12 @@ def process_remittance_route(trn: str):
 def list_remittances():
     out = []
     for trn, e in state().remittances.items():
+        up = e.get("underpayment")
         out.append({"remittance_id": trn, "payer": e["remit"].payer, "source": e["source"],
                     "eft_amount": str(e["remit"].eft_amount), "claims": len(e["remit"].claims),
                     "processed": e["processed"], "committed": e.get("committed", False),
-                    "tied": (e["recon"].tied if e.get("recon") else None)})
+                    "tied": (e["recon"].tied if e.get("recon") else None),
+                    "revenue_at_risk": (str(up.total_recoverable) if up else None)})
     return out
 
 
@@ -295,6 +316,9 @@ SAMPLES = [
      "description": "A straightforward batch — every line matches and the money posts cleanly."},
     {"id": "denials", "label": "Denials & appeals", "dir": "fixtures/sample/denials",
      "description": "Includes denials the AI must interpret — generates items to review in the inbox."},
+    {"id": "underpayment", "label": "Underpaid batch", "dir": "fixtures/sample/underpayment",
+     "description": "Reconciles to the cent — and still leaks money. Lines paid below the contracted "
+                    "fee schedule; only the contract comparison catches it."},
 ]
 
 

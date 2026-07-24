@@ -1,0 +1,28 @@
+{
+  "seed": 6,
+  "claims": 10,
+  "payer": "DELTA DENTAL OF EXAMPLE",
+  "paid_date": "2026-06-15",
+  "rates": {
+    "denial": 0.0,
+    "reversal": 0.0,
+    "cob": 0.0,
+    "overpayment": 0.0,
+    "split": 0.0,
+    "underpayment": 0.35
+  },
+  "plb": false,
+  "pdf": true,
+  "remittances": [
+    {
+      "trn": "EFT20260615001",
+      "eft_amount": "2738.42",
+      "claims": 10
+    }
+  ],
+  "files": [
+    "remit-001.835",
+    "eob-001.pdf",
+    "golden.json"
+  ]
+}

@@ -147,6 +147,8 @@ function Home({ remits, excCount, go, onLoadSample }) {
   const reconciled = remits.filter((r) => r.tied).length;
   const sum = remits.reduce((a, r) => a + parseFloat(r.eft_amount || 0), 0);
   const money = "$" + sum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const atRisk = remits.reduce((a, r) => a + parseFloat(r.revenue_at_risk || 0), 0);
+  const atRiskMoney = "$" + atRisk.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return (
     <div>
       <p className="caption">A control-tower view of everything Remit has processed in this batch.</p>
@@ -169,6 +171,7 @@ function Home({ remits, excCount, go, onLoadSample }) {
         <Stat label="Remittances" value={total} />
         <Stat label="Committed" value={committed} tone="ok" />
         <Stat label="Held for review" value={held} tone={held ? "warn" : ""} />
+        <Stat label="Revenue at risk" value={atRiskMoney} tone={atRisk ? "warn" : "ok"} onClick={atRisk ? () => go("Inbox") : undefined} />
         <Stat label="In your inbox" value={excCount} tone={excCount ? "warn" : "ok"} onClick={() => go("Inbox")} />
         <Stat label="Total processed" value={money} />
       </div>
@@ -179,6 +182,7 @@ function Home({ remits, excCount, go, onLoadSample }) {
           <div className="sline"><span>Reconciled to the cent</span><span className="num">{reconciled} / {total}</span></div>
           <div className="sline"><span>Committed (posted)</span><span className="num">{committed}</span></div>
           <div className="sline"><span>Held for review</span><span className="num">{held}</span></div>
+          <div className="sline"><span>Revenue at risk (paid below contract)</span><span className="num">{atRiskMoney}</span></div>
           <div className="sline"><span>Items in your inbox</span><span className="num">{excCount}</span></div>
           <div className="sline"><span>Total amount processed</span><span className="num">{money}</span></div>
         </div>
@@ -187,14 +191,15 @@ function Home({ remits, excCount, go, onLoadSample }) {
   );
 }
 
-const STAGE_ICON = { Ingest: "📥", "Parse / Extract": "📄", Match: "🔗", Decide: "🧠", Settle: "💰", Reconcile: "✅", Exceptions: "🚩" };
-const STAGE_VERB = { Ingest: "Reading the file", "Parse / Extract": "Extracting and checking the math", Match: "Matching lines to claims", Decide: "Deciding each line", Settle: "Recording the money", Reconcile: "Reconciling to the deposit", Exceptions: "Routing exceptions to review" };
+const STAGE_ICON = { Ingest: "📥", "Parse / Extract": "📄", Match: "🔗", Decide: "🧠", Settle: "💰", Detect: "🔍", Reconcile: "✅", Exceptions: "🚩" };
+const STAGE_VERB = { Ingest: "Reading the file", "Parse / Extract": "Extracting and checking the math", Match: "Matching lines to claims", Decide: "Deciding each line", Settle: "Recording the money", Detect: "Comparing against contracted rates", Reconcile: "Reconciling to the deposit", Exceptions: "Routing exceptions to review" };
 const STAGE_SVG = {
   Ingest: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
   "Parse / Extract": <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></>,
   Match: <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
   Decide: ICONS.Decisions,
   Settle: <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+  Detect: <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
   Reconcile: ICONS.Reconciliation,
   Exceptions: <><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>,
 };
@@ -433,6 +438,7 @@ const REASON_LABEL = {
   unmatched_line: "Unmatched line",
   extraction_arithmetic_break: "Math mismatch",
   reconciliation_break: "Reconciliation break",
+  underpayment: "Paid below contract",
 };
 
 function Evidence({ ev }) {
@@ -445,6 +451,7 @@ function Evidence({ ev }) {
     ["Other adj.", ev.other_adjustments],
   ].filter(([, v]) => v !== undefined && v !== null);
   const hasOther = ev.other_adjustments !== undefined && parseFloat(ev.other_adjustments) !== 0;
+  const under = (ev.line_exceptions || []).find((le) => le.reason === "underpayment");
   return (
     <div className="ev">
       {ev.detail && <p className="ev-detail">{ev.detail}</p>}
@@ -455,8 +462,18 @@ function Evidence({ ev }) {
           ))}
         </div>
       )}
+      {under && (
+        <>
+          <div className="ev-grid" style={{ marginTop: ".55rem" }}>
+            <div className="ev-item"><span className="ev-k">Contracted allowed</span><span className="ev-v">${under.contracted_allowed}</span></div>
+            <div className="ev-item"><span className="ev-k">Payer allowed (EOB)</span><span className="ev-v">${under.stated_allowed}</span></div>
+            <div className="ev-item hot"><span className="ev-k">Recoverable</span><span className="ev-v">${under.recoverable}</span></div>
+          </div>
+          <p className="ev-note">The line balances and the deposit ties to the cent — arithmetic can't see this. Only the practice's contracted fee schedule reveals the shortfall the payer buried in the write-off.</p>
+        </>
+      )}
       {hasOther && <p className="ev-note">"Other adj." is an adjustment the engine couldn't auto-settle (e.g. an overpayment, or a prior-payer/COB impact). It balances the line back to Billed and is exactly why this line is held for a human.</p>}
-      {(ev.line_exceptions || []).map((le, idx) => (
+      {(ev.line_exceptions || []).filter((le) => le.reason !== "underpayment").map((le, idx) => (
         <p key={idx} className="ev-note">⚠ {REASON_LABEL[le.reason] || le.reason}: {le.detail}</p>
       ))}
     </div>
@@ -466,10 +483,15 @@ function Evidence({ ev }) {
 function ReviewPanel({ item, onResolve }) {
   const isReview = item.recommended_action === "review";              // engine has no confident call
   const contractual = parseFloat(item.evidence?.contractual_writeoff || 0) > 0;  // CO/PI portion present
+  const under = item.reason === "underpayment"
+    ? (item.evidence?.line_exceptions || []).find((le) => le.reason === "underpayment")
+    : null;
   return (
     <div>
       <div className="prepared">
-        {isReview
+        {under
+          ? "✻ Remit found money left on the table — the payer paid below your contract. Your call: chase it or accept it."
+          : isReview
           ? "✻ Remit couldn't decide this confidently — it's your call."
           : "✻ Remit prepared a recommendation — review it, then approve or override."}
       </div>
@@ -489,8 +511,13 @@ function ReviewPanel({ item, onResolve }) {
             ✓ Approve ({item.recommended_action})
           </button>
         )}
-        <button className={isReview ? "btn-approve" : ""} onClick={() => onResolve(item.id, "override", "contractual_writeoff")}>
-          {isReview ? "Write off" : "Override → write-off"}
+        {under && (
+          <button className="btn-approve" onClick={() => onResolve(item.id, "override", "appeal")}>
+            ⚑ Chase the payer (${under.recoverable} recoverable)
+          </button>
+        )}
+        <button className={isReview && !under ? "btn-approve" : ""} onClick={() => onResolve(item.id, "override", "contractual_writeoff")}>
+          {under ? "Accept the shortfall (write off)" : isReview ? "Write off" : "Override → write-off"}
         </button>
         {contractual ? (
           <span className="blocked-note" title="A contractual (CO) adjustment can never be balance-billed to the patient.">

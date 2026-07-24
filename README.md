@@ -32,9 +32,9 @@ Two ideas drive every design decision:
 ## What it does (pipeline)
 
 ```
-upload ──► ingest ──► parse / extract ──► match ──► DECIDE (rules + RAG) ──► settle ──► reconcile
-                                                          │                              │
-                                                          └──────────► exception queue ◄─┘
+upload ──► ingest ──► parse / extract ──► match ──► DECIDE (rules + RAG) ──► settle ──► detect ──► reconcile
+                                                          │                                          │
+                                                          └────────────► exception queue ◄───────────┘
 ```
 
 | Stage | What happens |
@@ -44,6 +44,7 @@ upload ──► ingest ──► parse / extract ──► match ──► DECI
 | **Match** | Link each line to its open claim; split payments accumulate; unmatched → exception |
 | **Decide** | Rules for the trivial codes, **RAG for denials & ambiguity** — grounded, cited, confidence-scored |
 | **Settle** | Record settled amounts per line (paid / write-off / patient / secondary); atomic per remittance |
+| **Detect** | Revenue integrity: compare each line's stated *allowed* against the practice's contracted fee schedule — a payment can balance perfectly and still be **below contract**; the shortfall is flagged as recoverable |
 | **Reconcile** | `Σ paid == BPR total == EFT` via `TRN`; any delta is a hard fail, held not committed |
 | **Exceptions** | Every fail-closed path lands here with evidence + recommended action; human accepts or overrides |
 

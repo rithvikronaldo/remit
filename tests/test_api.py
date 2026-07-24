@@ -77,3 +77,44 @@ def test_upload_and_duplicate_rejected():
     # already ingested at startup → duplicate
     dup = client.post("/remittances", files={"file": ("remit-001.835", edi, "text/plain")})
     assert dup.status_code == 409
+
+
+def test_sample_cohorts_load_as_distinct_remittances():
+    """Every cohort has a unique TRN, so all three load alongside the startup
+    fixture instead of silently colliding with it."""
+    before = {r["remittance_id"] for r in client.get("/remittances").json()}
+    trns = {sid: client.post(f"/samples/{sid}/load").json()["remittance_id"]
+            for sid in ("clean", "denials", "underpayment")}
+    assert len(set(trns.values())) == 3
+    after = {r["remittance_id"] for r in client.get("/remittances").json()}
+    assert set(trns.values()) <= after and before < after
+
+
+def test_underpayment_sample_surfaces_revenue_at_risk():
+    trn = client.post("/samples/underpayment/load").json()["remittance_id"]
+    row = next(r for r in client.get("/remittances").json() if r["remittance_id"] == trn)
+    assert float(row["revenue_at_risk"]) > 0
+    assert row["tied"] is True and row["committed"] is False  # ties to the cent, held anyway
+
+    stages = client.get(f"/remittances/{trn}/pipeline").json()["stages"]
+    detect = next(s for s in stages if s["name"] == "Detect")
+    assert detect["status"] == "warn" and "at risk" in detect["summary"]
+    recon = next(s for s in stages if s["name"] == "Reconcile")
+    assert recon["status"] == "done"                          # the money is perfect — that's the point
+
+
+def test_underpayment_item_appeal_and_balance_bill_guardrail():
+    client.post("/samples/underpayment/load")
+    items = [i for i in client.get("/exceptions").json() if i["reason"] == "underpayment"]
+    assert items, "expected underpaid lines in the inbox"
+    exc = items[0]["evidence"]["line_exceptions"][0]
+    assert float(exc["contracted_allowed"]) > float(exc["stated_allowed"])
+    assert float(exc["recoverable"]) > 0
+    # The shortfall is buried in a CO write-off → balance-billing stays blocked, even for a human.
+    blocked = client.post(f"/exceptions/{items[0]['id']}/resolve",
+                          json={"decision": "override", "action": "bill_patient"})
+    assert blocked.status_code == 400
+    # The actionable path: chase the payer for the money it withheld.
+    ok = client.post(f"/exceptions/{items[0]['id']}/resolve",
+                     json={"decision": "override", "action": "appeal"}).json()
+    assert ok["action"] == "appeal" and ok["settled"] is True
